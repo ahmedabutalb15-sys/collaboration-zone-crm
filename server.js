@@ -13,6 +13,8 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 const ROOT = __dirname;
 
+app.set("trust proxy", 1);
+
 if (!process.env.DATABASE_URL) {
   console.error("❌ DATABASE_URL is not set");
   process.exit(1);
