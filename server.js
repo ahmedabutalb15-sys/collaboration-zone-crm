@@ -215,7 +215,16 @@ app.post("/api/login", async (req, res) => {
       role: u.role
     };
 
-    res.json(req.session.user);
+    req.session.save((err) => {
+      if (err) {
+        console.error("❌ Session save error:", err);
+        return res.status(500).json({
+          error: "فشل حفظ جلسة الدخول"
+        });
+      }
+
+      res.json(req.session.user);
+    });
 
   } catch (error) {
     console.error(error);
