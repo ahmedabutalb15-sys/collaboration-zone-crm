@@ -95,6 +95,17 @@ async function initDatabase() {
       notes TEXT,
       created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
     );
+
+    CREATE TABLE IF NOT EXISTS attendance (
+      id SERIAL PRIMARY KEY,
+      user_id INTEGER NOT NULL,
+      work_date DATE NOT NULL,
+      check_in TIMESTAMP,
+      check_out TIMESTAMP,
+      created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY(user_id) REFERENCES users(id),
+      UNIQUE(user_id, work_date)
+    );
   `);
 
   const adminResult = await query(
@@ -220,6 +231,7 @@ app.post("/api/login", async (req, res) => {
     req.session.save((err) => {
       if (err) {
         console.error("❌ Session save error:", err);
+
         return res.status(500).json({
           error: "فشل حفظ جلسة الدخول"
         });
@@ -230,6 +242,7 @@ app.post("/api/login", async (req, res) => {
 
   } catch (error) {
     console.error(error);
+
     res.status(500).json({
       error: "حدث خطأ في تسجيل الدخول"
     });
@@ -323,6 +336,7 @@ app.get("/api/dashboard", auth, async (req, res) => {
 
   } catch (error) {
     console.error(error);
+
     res.status(500).json({
       error: "Dashboard error"
     });
@@ -350,6 +364,7 @@ app.get("/api/reports", auth, async (req, res) => {
         JOIN users u ON u.id=r.user_id
         ORDER BY r.id DESC
       `);
+
     } else {
       result = await query(`
         SELECT
@@ -366,6 +381,7 @@ app.get("/api/reports", auth, async (req, res) => {
 
   } catch (error) {
     console.error(error);
+
     res.status(500).json({
       error: "Reports error"
     });
@@ -424,6 +440,7 @@ app.post(
 
     } catch (error) {
       console.error(error);
+
       res.status(500).json({
         error: "حدث خطأ أثناء حفظ التقرير"
       });
@@ -455,6 +472,7 @@ app.post(
 
     } catch (error) {
       console.error(error);
+
       res.status(500).json({
         error: "حدث خطأ"
       });
@@ -487,6 +505,7 @@ app.get("/api/reports/export", auth, async (req, res) => {
         JOIN users u ON u.id=r.user_id
         ORDER BY r.id DESC
       `);
+
     } else {
       result = await query(`
         SELECT
@@ -515,6 +534,7 @@ app.get("/api/reports/export", auth, async (req, res) => {
       "\ufeff" +
       [
         "ID,Employee,Title,Date,Client,Project,Visit Type,Description,Status",
+
         ...rows.map(r =>
           [
             r.id,
@@ -546,6 +566,7 @@ app.get("/api/reports/export", auth, async (req, res) => {
 
   } catch (error) {
     console.error(error);
+
     res.status(500).json({
       error: "Export error"
     });
@@ -574,6 +595,7 @@ app.get("/api/users", auth, admin, async (req, res) => {
 
   } catch (error) {
     console.error(error);
+
     res.status(500).json({
       error: "Users error"
     });
@@ -655,6 +677,7 @@ app.post(
 
     } catch (error) {
       console.error(error);
+
       res.status(500).json({
         error: "حدث خطأ"
       });
@@ -683,6 +706,7 @@ app.get("/api/tasks", auth, async (req, res) => {
         JOIN users u ON u.id=t.assigned_to
         ORDER BY t.id DESC
       `);
+
     } else {
       result = await query(`
         SELECT
@@ -699,6 +723,7 @@ app.get("/api/tasks", auth, async (req, res) => {
 
   } catch (error) {
     console.error(error);
+
     res.status(500).json({
       error: "Tasks error"
     });
@@ -737,6 +762,7 @@ app.post("/api/tasks", auth, admin, async (req, res) => {
 
   } catch (error) {
     console.error(error);
+
     res.status(500).json({
       error: "حدث خطأ أثناء إضافة المهمة"
     });
@@ -780,6 +806,7 @@ app.post(
 
     } catch (error) {
       console.error(error);
+
       res.status(500).json({
         error: "حدث خطأ"
       });
@@ -801,6 +828,7 @@ app.get("/api/clients", auth, async (req, res) => {
 
   } catch (error) {
     console.error(error);
+
     res.status(500).json({
       error: "Clients error"
     });
@@ -839,8 +867,316 @@ app.post("/api/clients", auth, admin, async (req, res) => {
 
   } catch (error) {
     console.error(error);
+
     res.status(500).json({
       error: "حدث خطأ أثناء إضافة العميل"
+    });
+  }
+});
+
+// =========================
+// Attendance
+// =========================
+
+// Get today's attendance for current user
+app.get("/api/attendance/today", auth, async (req, res) => {
+  try {
+    const result = await query(
+      `SELECT
+         id,
+         work_date,
+         check_in,
+         check_out,
+         CASE
+           WHEN check_in IS NOT NULL
+            AND check_out IS NOT NULL
+           THEN ROUND(
+             EXTRACT(
+               EPOCH FROM (check_out - check_in)
+             ) / 3600.0,
+             2
+           )
+           ELSE NULL
+         END AS hours
+       FROM attendance
+       WHERE user_id=$1
+       AND work_date=(CURRENT_TIMESTAMP AT TIME ZONE 'Asia/Riyadh')::date
+       LIMIT 1`,
+      [req.session.user.id]
+    );
+
+    res.json(result.rows[0] || null);
+
+  } catch (error) {
+    console.error(error);
+
+    res.status(500).json({
+      error: "Attendance error"
+    });
+  }
+});
+
+// Check in
+app.post("/api/attendance/check-in", auth, async (req, res) => {
+  try {
+    const existing = await query(
+      `SELECT *
+       FROM attendance
+       WHERE user_id=$1
+       AND work_date=(CURRENT_TIMESTAMP AT TIME ZONE 'Asia/Riyadh')::date
+       LIMIT 1`,
+      [req.session.user.id]
+    );
+
+    if (existing.rows.length > 0) {
+      const record = existing.rows[0];
+
+      if (record.check_in) {
+        return res.status(400).json({
+          error: "تم تسجيل الحضور بالفعل اليوم"
+        });
+      }
+    }
+
+    const result = await query(
+      `INSERT INTO attendance
+       (
+         user_id,
+         work_date,
+         check_in
+       )
+       VALUES
+       (
+         $1,
+         (CURRENT_TIMESTAMP AT TIME ZONE 'Asia/Riyadh')::date,
+         (CURRENT_TIMESTAMP AT TIME ZONE 'Asia/Riyadh')
+       )
+       ON CONFLICT (user_id, work_date)
+       DO UPDATE SET
+         check_in=EXCLUDED.check_in
+       RETURNING
+         id,
+         work_date,
+         check_in,
+         check_out`,
+      [req.session.user.id]
+    );
+
+    res.json({
+      ok: true,
+      attendance: result.rows[0]
+    });
+
+  } catch (error) {
+    console.error(error);
+
+    res.status(500).json({
+      error: "حدث خطأ أثناء تسجيل الحضور"
+    });
+  }
+});
+
+// Check out
+app.post("/api/attendance/check-out", auth, async (req, res) => {
+  try {
+    const result = await query(
+      `SELECT *
+       FROM attendance
+       WHERE user_id=$1
+       AND work_date=(CURRENT_TIMESTAMP AT TIME ZONE 'Asia/Riyadh')::date
+       LIMIT 1`,
+      [req.session.user.id]
+    );
+
+    const attendance = result.rows[0];
+
+    if (!attendance || !attendance.check_in) {
+      return res.status(400).json({
+        error: "يجب تسجيل الحضور أولاً"
+      });
+    }
+
+    if (attendance.check_out) {
+      return res.status(400).json({
+        error: "تم تسجيل الانصراف بالفعل اليوم"
+      });
+    }
+
+    const updated = await query(
+      `UPDATE attendance
+       SET check_out=(CURRENT_TIMESTAMP AT TIME ZONE 'Asia/Riyadh')
+       WHERE id=$1
+       RETURNING
+         id,
+         work_date,
+         check_in,
+         check_out,
+         ROUND(
+           EXTRACT(
+             EPOCH FROM (check_out - check_in)
+           ) / 3600.0,
+           2
+         ) AS hours`,
+      [attendance.id]
+    );
+
+    res.json({
+      ok: true,
+      attendance: updated.rows[0]
+    });
+
+  } catch (error) {
+    console.error(error);
+
+    res.status(500).json({
+      error: "حدث خطأ أثناء تسجيل الانصراف"
+    });
+  }
+});
+
+// Attendance records for admin/manager
+app.get("/api/attendance", auth, admin, async (req, res) => {
+  try {
+    const date = req.query.date;
+
+    let result;
+
+    if (date) {
+      result = await query(
+        `SELECT
+           a.id,
+           a.work_date,
+           a.check_in,
+           a.check_out,
+           u.id AS user_id,
+           u.name AS employee,
+           u.username,
+           ROUND(
+             CASE
+               WHEN a.check_in IS NOT NULL
+                AND a.check_out IS NOT NULL
+               THEN EXTRACT(
+                 EPOCH FROM (a.check_out - a.check_in)
+               ) / 3600.0
+               ELSE NULL
+             END,
+             2
+           ) AS hours
+         FROM attendance a
+         JOIN users u ON u.id=a.user_id
+         WHERE a.work_date=$1
+         ORDER BY a.check_in DESC NULLS LAST, u.name ASC`,
+        [date]
+      );
+
+    } else {
+      result = await query(
+        `SELECT
+           a.id,
+           a.work_date,
+           a.check_in,
+           a.check_out,
+           u.id AS user_id,
+           u.name AS employee,
+           u.username,
+           ROUND(
+             CASE
+               WHEN a.check_in IS NOT NULL
+                AND a.check_out IS NOT NULL
+               THEN EXTRACT(
+                 EPOCH FROM (a.check_out - a.check_in)
+               ) / 3600.0
+               ELSE NULL
+             END,
+             2
+           ) AS hours
+         FROM attendance a
+         JOIN users u ON u.id=a.user_id
+         ORDER BY a.work_date DESC, a.check_in DESC NULLS LAST, u.name ASC
+         LIMIT 500`
+      );
+    }
+
+    res.json(result.rows);
+
+  } catch (error) {
+    console.error(error);
+
+    res.status(500).json({
+      error: "Attendance records error"
+    });
+  }
+});
+
+// Export attendance
+app.get("/api/attendance/export", auth, admin, async (req, res) => {
+  try {
+    const result = await query(
+      `SELECT
+         a.id,
+         u.name AS employee,
+         u.username,
+         a.work_date,
+         a.check_in,
+         a.check_out,
+         ROUND(
+           CASE
+             WHEN a.check_in IS NOT NULL
+              AND a.check_out IS NOT NULL
+             THEN EXTRACT(
+               EPOCH FROM (a.check_out - a.check_in)
+             ) / 3600.0
+             ELSE NULL
+           END,
+           2
+         ) AS hours
+       FROM attendance a
+       JOIN users u ON u.id=a.user_id
+       ORDER BY a.work_date DESC, a.check_in DESC NULLS LAST`
+    );
+
+    const rows = result.rows;
+
+    const esc = v =>
+      `"${String(v ?? "").replaceAll('"', '""')}"`;
+
+    const csv =
+      "\ufeff" +
+      [
+        "ID,Employee,Username,Date,Check In,Check Out,Hours",
+
+        ...rows.map(r =>
+          [
+            r.id,
+            r.employee,
+            r.username,
+            r.work_date,
+            r.check_in,
+            r.check_out,
+            r.hours
+          ]
+            .map(esc)
+            .join(",")
+        )
+      ].join("\n");
+
+    res.setHeader(
+      "Content-Type",
+      "text/csv; charset=utf-8"
+    );
+
+    res.setHeader(
+      "Content-Disposition",
+      'attachment; filename="collaboration-zone-attendance.csv"'
+    );
+
+    res.send(csv);
+
+  } catch (error) {
+    console.error(error);
+
+    res.status(500).json({
+      error: "Attendance export error"
     });
   }
 });
