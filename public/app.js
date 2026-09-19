@@ -1910,6 +1910,70 @@ async function checkOut() {
     );
 
 
-    if (
-      ["admin", "man]()
-```
+       if (
+      ["admin", "manager"].includes(me?.role)
+    ) {
+      await loadAdminAttendance();
+    }
+
+  } catch (error) {
+
+    alert(error.message);
+
+  }
+
+}
+
+
+// =========================
+// Export Attendance
+// =========================
+
+async function exportAttendance() {
+
+  try {
+
+    const date =
+      $("attendanceDate")?.value || "";
+
+    const url =
+      date
+        ? `/api/attendance/export?date=${encodeURIComponent(date)}`
+        : "/api/attendance/export";
+
+    window.open(url, "_blank");
+
+  } catch (error) {
+
+    alert(error.message);
+
+  }
+
+}
+
+window.checkIn = checkIn;
+window.checkOut = checkOut;
+window.exportAttendance = exportAttendance;
+
+
+// =========================
+// Escape HTML
+// =========================
+
+function escapeHtml(value) {
+
+  return String(value ?? "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+
+}
+
+
+// =========================
+// Start App
+// =========================
+
+boot();
