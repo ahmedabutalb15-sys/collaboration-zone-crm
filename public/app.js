@@ -1,3 +1,4 @@
+```javascript
 const $ = id => document.getElementById(id);
 
 let me = null;
@@ -156,8 +157,7 @@ function showPage(page) {
 
   if ($("pageTitle")) {
     $("pageTitle").textContent =
-      t().pageTitles[page] ||
-      page;
+      t().pageTitles[page] || page;
   }
 }
 
@@ -179,7 +179,6 @@ async function boot() {
 
     $("login").style.display = "none";
 
-    // إزالة hidden حتى يظهر التطبيق مع التصميم الأصلي
     $("app").classList.remove("hidden");
     $("app").style.display = "block";
 
@@ -220,30 +219,36 @@ async function boot() {
 // =========================
 
 function updateLanguage() {
+
   document.documentElement.lang = currentLang;
 
   document.documentElement.dir =
-    currentLang === "ar"
-      ? "rtl"
-      : "ltr";
+    currentLang === "ar" ? "rtl" : "ltr";
 
-  const sideButtons =
-    document.querySelectorAll(".side button[data-page]");
 
-  sideButtons.forEach(btn => {
-    const page = btn.dataset.page;
+  // Sidebar
+  document
+    .querySelectorAll(".side button[data-page]")
+    .forEach(btn => {
 
-    if (t().side[page]) {
-      btn.textContent = t().side[page];
-    }
-  });
+      const page = btn.dataset.page;
 
+      if (t().side[page]) {
+        btn.textContent = t().side[page];
+      }
+
+    });
+
+
+  // Logout
   const logout = $("logout");
 
   if (logout) {
     logout.textContent = t().side.logout;
   }
 
+
+  // Current page title
   const currentPage =
     document.querySelector(".page:not(.hidden)")?.id ||
     "dashboard";
@@ -254,6 +259,8 @@ function updateLanguage() {
       t().pageTitles.dashboard;
   }
 
+
+  // Language button
   const langBtn = $("langBtn");
 
   if (langBtn) {
@@ -263,7 +270,250 @@ function updateLanguage() {
         : "العربية";
   }
 
+
+  // Topbar
+  if ($("who") && me) {
+    $("who").textContent =
+      currentLang === "ar"
+        ? `مرحباً ${me.name}`
+        : `Welcome ${me.name}`;
+  }
+
+
+  // Translate static HTML
+  translateStaticUI();
+
+
+  // Attendance
   renderAttendanceLabels();
+
+
+  // Re-render dynamic sections
+  loadReports();
+  loadTasks();
+  loadClients();
+  loadAttendance();
+
+  if (
+    me &&
+    ["admin", "manager"].includes(me.role)
+  ) {
+    loadUsers();
+    loadAdminAttendance();
+  }
+
+
+  // Mobile navigation fix
+  fixMobileNavigation();
+}
+
+
+// =========================
+// Static UI translations
+// =========================
+
+const staticTranslations = {
+
+  "الرئيسية": "Home",
+  "لوحة التحكم": "Dashboard",
+
+  "الريبورتات": "Reports",
+  "التقارير": "Reports",
+  "المهام": "Tasks",
+  "العملاء": "Clients",
+
+  "الموظفين والحسابات": "Employees & Accounts",
+  "الموظفين": "Employees",
+
+  "الحضور والانصراف": "Attendance",
+
+  "إضافة ريبورت جديد": "New Report",
+  "ريبورت جديد": "New Report",
+
+  "إضافة مهمة": "Add Task",
+  "إضافة عميل": "Add Client",
+  "إضافة موظف": "Add Employee",
+
+  "الموظف": "Employee",
+  "العنوان": "Title",
+  "التاريخ": "Date",
+  "العميل": "Client",
+  "المشروع": "Project",
+  "النوع": "Type",
+  "الحالة": "Status",
+  "التفاصيل": "Details",
+
+  "اسم العميل": "Client Name",
+  "جهة الاتصال": "Contact",
+  "الهاتف": "Phone",
+  "ملاحظات": "Notes",
+
+  "اسم المستخدم": "Username",
+  "كلمة المرور": "Password",
+  "الاسم": "Name",
+  "الصلاحية": "Role",
+
+  "نشط": "Active",
+  "متوقف": "Inactive",
+  "إيقاف": "Disable",
+  "تفعيل": "Activate",
+
+  "المهمة": "Task",
+  "الاستحقاق": "Due Date",
+  "الأولوية": "Priority",
+
+  "إجراء": "Action",
+  "تم": "Done",
+
+  "حفظ": "Save",
+  "إلغاء": "Cancel",
+  "إضافة": "Add",
+  "إغلاق": "Close",
+
+  "لا توجد ريبورتات حتى الآن.": "No reports yet.",
+  "لا توجد مهام.": "No tasks.",
+  "لا يوجد عملاء.": "No clients.",
+
+  "تسجيل الدخول": "Login",
+  "تسجيل خروج": "Logout"
+};
+
+
+const reverseStaticTranslations =
+  Object.fromEntries(
+    Object.entries(staticTranslations)
+      .map(([ar, en]) => [en, ar])
+  );
+
+
+function translateStaticUI() {
+
+  const elements =
+    document.querySelectorAll(
+      "button, label, th, h1, h2, h3, h4, h5, p, span, .muted"
+    );
+
+  elements.forEach(el => {
+
+    if (
+      el.children.length > 0 &&
+      !el.matches("button, label, th, h1, h2, h3, h4, h5, p, span, .muted")
+    ) {
+      return;
+    }
+
+    const original =
+      el.textContent.trim();
+
+    if (!original) return;
+
+
+    if (currentLang === "en") {
+
+      if (staticTranslations[original]) {
+        el.textContent =
+          staticTranslations[original];
+      }
+
+    } else {
+
+      if (reverseStaticTranslations[original]) {
+        el.textContent =
+          reverseStaticTranslations[original];
+      }
+
+    }
+
+  });
+
+
+  // Inputs placeholders
+  document
+    .querySelectorAll("input, textarea")
+    .forEach(input => {
+
+      const placeholder =
+        input.getAttribute("placeholder");
+
+      if (!placeholder) return;
+
+      if (currentLang === "en") {
+
+        if (staticTranslations[placeholder]) {
+          input.placeholder =
+            staticTranslations[placeholder];
+        }
+
+      } else {
+
+        if (reverseStaticTranslations[placeholder]) {
+          input.placeholder =
+            reverseStaticTranslations[placeholder];
+        }
+
+      }
+
+    });
+}
+
+
+// =========================
+// Mobile Navigation
+// =========================
+
+function fixMobileNavigation() {
+
+  let style =
+    $("czMobileNavigationFix");
+
+  if (!style) {
+
+    style =
+      document.createElement("style");
+
+    style.id =
+      "czMobileNavigationFix";
+
+    document.head.appendChild(style);
+  }
+
+
+  style.textContent = `
+
+    @media (max-width: 768px) {
+
+      .sidebar {
+        position: fixed !important;
+        top: 0 !important;
+        bottom: auto !important;
+        right: 0 !important;
+        left: 0 !important;
+        width: 100% !important;
+        height: auto !important;
+        z-index: 9999 !important;
+      }
+
+      .main {
+        margin-right: 0 !important;
+        margin-left: 0 !important;
+        padding-top: 150px !important;
+        width: 100% !important;
+      }
+
+      .sidebar nav {
+        display: flex !important;
+        flex-wrap: wrap !important;
+        justify-content: center !important;
+        gap: 6px !important;
+      }
+
+      .sidebar nav button {
+        flex: 0 0 auto !important;
+      }
+
+    }
+
+  `;
 }
 
 
@@ -272,21 +522,29 @@ function updateLanguage() {
 // =========================
 
 document.addEventListener("click", async e => {
-  const btn = e.target.closest("[data-page]");
+
+  const btn =
+    e.target.closest("[data-page]");
 
   if (!btn) return;
 
-  const page = btn.dataset.page;
+  const page =
+    btn.dataset.page;
 
   showPage(page);
 
   if (page === "attendance" && me) {
+
     await loadAttendance();
 
-    if (["admin", "manager"].includes(me.role)) {
+    if (
+      ["admin", "manager"].includes(me.role)
+    ) {
       await loadAdminAttendance();
     }
+
   }
+
 });
 
 
@@ -294,7 +552,8 @@ document.addEventListener("click", async e => {
 // Language button
 // =========================
 
-$("langBtn")?.addEventListener("click", () => {
+$("langBtn")?.addEventListener("click", async () => {
+
   currentLang =
     currentLang === "ar"
       ? "en"
@@ -307,16 +566,19 @@ $("langBtn")?.addEventListener("click", () => {
 
   updateLanguage();
 
-  loadDashboard();
-  loadReports();
-  loadTasks();
-  loadClients();
-  loadAttendance();
+  await loadDashboard();
+  await loadReports();
+  await loadTasks();
+  await loadClients();
+  await loadAttendance();
 
-  if (["admin", "manager"].includes(me?.role)) {
-    loadUsers();
-    loadAdminAttendance();
+  if (
+    ["admin", "manager"].includes(me?.role)
+  ) {
+    await loadUsers();
+    await loadAdminAttendance();
   }
+
 });
 
 
@@ -324,81 +586,115 @@ $("langBtn")?.addEventListener("click", () => {
 // Login
 // =========================
 
-$("loginForm")?.addEventListener("submit", async e => {
-  e.preventDefault();
+$("loginForm")?.addEventListener(
+  "submit",
+  async e => {
 
-  $("loginErr").classList.add("hidden");
+    e.preventDefault();
 
-  try {
-    me = await api("/api/login", {
-      method: "POST",
+    $("loginErr").classList.add("hidden");
 
-      headers: {
-        "Content-Type": "application/json"
-      },
+    try {
 
-      body: JSON.stringify({
-        username: $("username").value.trim(),
-        password: $("password").value
-      })
-    });
+      me = await api("/api/login", {
+        method: "POST",
 
-    $("login").style.display = "none";
+        headers: {
+          "Content-Type": "application/json"
+        },
 
-    // إزالة hidden حتى يظهر التطبيق مع التصميم الأصلي
-    $("app").classList.remove("hidden");
-    $("app").style.display = "block";
+        body: JSON.stringify({
+          username:
+            $("username").value.trim(),
 
-    showPage("dashboard");
+          password:
+            $("password").value
+        })
+      });
 
-    document.querySelectorAll(".adminOnly").forEach(el => {
-      el.style.display =
+
+      $("login").style.display = "none";
+
+      $("app").classList.remove("hidden");
+      $("app").style.display = "block";
+
+      showPage("dashboard");
+
+
+      document
+        .querySelectorAll(".adminOnly")
+        .forEach(el => {
+
+          el.style.display =
+            ["admin", "manager"]
+              .includes(me.role)
+              ? ""
+              : "none";
+
+        });
+
+
+      $("who").textContent =
+        currentLang === "ar"
+          ? `مرحباً ${me.name}`
+          : `Welcome ${me.name}`;
+
+
+      updateLanguage();
+
+
+      await loadDashboard();
+      await loadReports();
+      await loadTasks();
+      await loadClients();
+      await loadAttendance();
+
+
+      if (
         ["admin", "manager"].includes(me.role)
-          ? ""
-          : "none";
-    });
+      ) {
+        await loadUsers();
+        await loadAdminAttendance();
+      }
 
-    $("who").textContent =
-      currentLang === "ar"
-        ? `مرحباً ${me.name}`
-        : `Welcome ${me.name}`;
+    } catch (error) {
 
-    updateLanguage();
+      $("loginErr").textContent =
+        error.message;
 
-    await loadDashboard();
-    await loadReports();
-    await loadTasks();
-    await loadClients();
-    await loadAttendance();
+      $("loginErr")
+        .classList.remove("hidden");
 
-    if (["admin", "manager"].includes(me.role)) {
-      await loadUsers();
-      await loadAdminAttendance();
     }
 
-  } catch (error) {
-    $("loginErr").textContent = error.message;
-
-    $("loginErr").classList.remove("hidden");
   }
-});
+);
 
 
 // =========================
 // Logout
 // =========================
 
-$("logout")?.addEventListener("click", async () => {
-  try {
-    await api("/api/logout", {
-      method: "POST"
-    });
-  } catch (error) {
-    console.error(error);
-  }
+$("logout")?.addEventListener(
+  "click",
+  async () => {
 
-  location.reload();
-});
+    try {
+
+      await api("/api/logout", {
+        method: "POST"
+      });
+
+    } catch (error) {
+
+      console.error(error);
+
+    }
+
+    location.reload();
+
+  }
+);
 
 
 // =========================
@@ -406,28 +702,42 @@ $("logout")?.addEventListener("click", async () => {
 // =========================
 
 async function loadDashboard() {
+
   try {
-    const d = await api("/api/dashboard");
+
+    const d =
+      await api("/api/dashboard");
+
 
     if ($("sReports")) {
-      $("sReports").textContent = d.reports;
+      $("sReports").textContent =
+        d.reports;
     }
+
 
     if ($("sPending")) {
-      $("sPending").textContent = d.pending;
+      $("sPending").textContent =
+        d.pending;
     }
+
 
     if ($("sTasks")) {
-      $("sTasks").textContent = d.tasks;
+      $("sTasks").textContent =
+        d.tasks;
     }
 
+
     if ($("sEmployees")) {
-      $("sEmployees").textContent = d.employees;
+      $("sEmployees").textContent =
+        d.employees;
     }
 
   } catch (error) {
+
     console.error(error);
+
   }
+
 }
 
 
@@ -436,40 +746,56 @@ async function loadDashboard() {
 // =========================
 
 async function loadReports() {
-  const box = $("reportsTable");
+
+  const box =
+    $("reportsTable");
 
   if (!box) return;
 
+
   try {
-    const rows = await api("/api/reports");
+
+    const rows =
+      await api("/api/reports");
+
 
     if (!rows.length) {
+
       box.innerHTML =
-        `<p class="muted">لا توجد ريبورتات حتى الآن.</p>`;
+        `<p class="muted">${
+          currentLang === "ar"
+            ? "لا توجد ريبورتات حتى الآن."
+            : "No reports yet."
+        }</p>`;
 
       return;
     }
 
+
     box.innerHTML = `
+
       <table class="table">
 
         <thead>
+
           <tr>
             <th>ID</th>
-            <th>الموظف</th>
-            <th>العنوان</th>
-            <th>التاريخ</th>
-            <th>العميل</th>
-            <th>المشروع</th>
-            <th>النوع</th>
-            <th>الحالة</th>
-            <th>التفاصيل</th>
+            <th>${currentLang === "ar" ? "الموظف" : "Employee"}</th>
+            <th>${currentLang === "ar" ? "العنوان" : "Title"}</th>
+            <th>${currentLang === "ar" ? "التاريخ" : "Date"}</th>
+            <th>${currentLang === "ar" ? "العميل" : "Client"}</th>
+            <th>${currentLang === "ar" ? "المشروع" : "Project"}</th>
+            <th>${currentLang === "ar" ? "النوع" : "Type"}</th>
+            <th>${currentLang === "ar" ? "الحالة" : "Status"}</th>
+            <th>${currentLang === "ar" ? "التفاصيل" : "Details"}</th>
           </tr>
+
         </thead>
 
         <tbody>
 
           ${rows.map(r => `
+
             <tr>
 
               <td>${r.id}</td>
@@ -509,11 +835,13 @@ async function loadReports() {
               </td>
 
             </tr>
+
           `).join("")}
 
         </tbody>
 
       </table>
+
     `;
 
   } catch (error) {
@@ -521,60 +849,89 @@ async function loadReports() {
     box.innerHTML =
       `<p class="danger">${escapeHtml(error.message)}</p>`;
   }
+
 }
 
 
 function showReportForm() {
+
   $("reportForm")?.classList.remove("hidden");
+
 
   const dateInput =
     document.querySelector(
       '#reportAdd input[name="report_date"]'
     );
 
-  if (dateInput && !dateInput.value) {
+
+  if (
+    dateInput &&
+    !dateInput.value
+  ) {
+
     dateInput.value =
-      new Date().toISOString().split("T")[0];
+      new Date()
+        .toISOString()
+        .split("T")[0];
+
   }
+
 }
 
 
 function hideReportForm() {
-  $("reportForm")?.classList.add("hidden");
+
+  $("reportForm")
+    ?.classList.add("hidden");
+
 }
 
 
-$("reportAdd")?.addEventListener("submit", async e => {
-  e.preventDefault();
+$("reportAdd")?.addEventListener(
+  "submit",
+  async e => {
 
-  try {
+    e.preventDefault();
 
-    const formData =
-      new FormData($("reportAdd"));
+    try {
 
-    await api("/api/reports", {
-      method: "POST",
-      body: formData
-    });
+      const formData =
+        new FormData(
+          $("reportAdd")
+        );
 
-    $("reportAdd").reset();
 
-    hideReportForm();
+      await api(
+        "/api/reports",
+        {
+          method: "POST",
+          body: formData
+        }
+      );
 
-    await loadReports();
 
-    await loadDashboard();
+      $("reportAdd").reset();
 
-    alert(
-      currentLang === "ar"
-        ? "تم حفظ التقرير"
-        : "Report saved"
-    );
+      hideReportForm();
 
-  } catch (error) {
-    alert(error.message);
+      await loadReports();
+      await loadDashboard();
+
+
+      alert(
+        currentLang === "ar"
+          ? "تم حفظ التقرير"
+          : "Report saved"
+      );
+
+    } catch (error) {
+
+      alert(error.message);
+
+    }
+
   }
-});
+);
 
 
 // =========================
@@ -582,36 +939,43 @@ $("reportAdd")?.addEventListener("submit", async e => {
 // =========================
 
 async function loadUsers() {
-  const box = $("usersTable");
+
+  const box =
+    $("usersTable");
 
   if (!box) return;
 
+
   try {
 
-    const rows = await api("/api/users");
+    const rows =
+      await api("/api/users");
+
 
     box.innerHTML = `
+
       <table class="table">
 
         <thead>
+
           <tr>
             <th>ID</th>
-            <th>الاسم</th>
-            <th>اسم المستخدم</th>
-            <th>الصلاحية</th>
-            <th>الحالة</th>
-            <th>إجراء</th>
+            <th>${currentLang === "ar" ? "الاسم" : "Name"}</th>
+            <th>${currentLang === "ar" ? "اسم المستخدم" : "Username"}</th>
+            <th>${currentLang === "ar" ? "الصلاحية" : "Role"}</th>
+            <th>${currentLang === "ar" ? "الحالة" : "Status"}</th>
+            <th>${currentLang === "ar" ? "إجراء" : "Action"}</th>
           </tr>
+
         </thead>
 
         <tbody>
 
           ${rows.map(u => `
+
             <tr>
 
-              <td>
-                ${u.id}
-              </td>
+              <td>${u.id}</td>
 
               <td>
                 ${escapeHtml(u.name)}
@@ -635,8 +999,16 @@ async function loadUsers() {
 
                   ${
                     Number(u.active)
-                      ? "نشط"
-                      : "متوقف"
+                      ? (
+                        currentLang === "ar"
+                          ? "نشط"
+                          : "Active"
+                      )
+                      : (
+                        currentLang === "ar"
+                          ? "متوقف"
+                          : "Inactive"
+                      )
                   }
 
                 </span>
@@ -656,8 +1028,16 @@ async function loadUsers() {
 
                   ${
                     Number(u.active)
-                      ? "إيقاف"
-                      : "تفعيل"
+                      ? (
+                        currentLang === "ar"
+                          ? "إيقاف"
+                          : "Disable"
+                      )
+                      : (
+                        currentLang === "ar"
+                          ? "تفعيل"
+                          : "Activate"
+                      )
                   }
 
                 </button>
@@ -665,32 +1045,44 @@ async function loadUsers() {
               </td>
 
             </tr>
+
           `).join("")}
 
         </tbody>
 
       </table>
+
     `;
 
-    const select = $("taskUser");
+
+    const select =
+      $("taskUser");
+
 
     if (select) {
 
-      select.innerHTML = rows
-        .filter(u => Number(u.active))
-        .map(u =>
-          `<option value="${u.id}">
-            ${escapeHtml(u.name)}
-          </option>`
-        )
-        .join("");
+      select.innerHTML =
+        rows
+          .filter(
+            u => Number(u.active)
+          )
+          .map(
+            u =>
+              `<option value="${u.id}">
+                ${escapeHtml(u.name)}
+              </option>`
+          )
+          .join("");
+
     }
 
   } catch (error) {
 
     box.innerHTML =
       `<p class="danger">${escapeHtml(error.message)}</p>`;
+
   }
+
 }
 
 
@@ -698,60 +1090,81 @@ async function toggleUser(id) {
 
   try {
 
-    await api(`/api/users/${id}/toggle`, {
-      method: "POST"
-    });
+    await api(
+      `/api/users/${id}/toggle`,
+      {
+        method: "POST"
+      }
+    );
 
     await loadUsers();
 
   } catch (error) {
 
     alert(error.message);
+
   }
+
 }
 
 
-window.toggleUser = toggleUser;
+window.toggleUser =
+  toggleUser;
 
 
-$("userAdd")?.addEventListener("submit", async e => {
+$("userAdd")?.addEventListener(
+  "submit",
+  async e => {
 
-  e.preventDefault();
+    e.preventDefault();
 
-  const form =
-    Object.fromEntries(
-      new FormData($("userAdd")).entries()
-    );
 
-  try {
+    const form =
+      Object.fromEntries(
+        new FormData(
+          $("userAdd")
+        ).entries()
+      );
 
-    await api("/api/users", {
-      method: "POST",
 
-      headers: {
-        "Content-Type": "application/json"
-      },
+    try {
 
-      body: JSON.stringify(form)
-    });
+      await api(
+        "/api/users",
+        {
+          method: "POST",
 
-    $("userAdd").reset();
+          headers: {
+            "Content-Type":
+              "application/json"
+          },
 
-    await loadUsers();
+          body:
+            JSON.stringify(form)
+        }
+      );
 
-    await loadDashboard();
 
-    alert(
-      currentLang === "ar"
-        ? "تم إنشاء الحساب"
-        : "Account created"
-    );
+      $("userAdd").reset();
 
-  } catch (error) {
+      await loadUsers();
+      await loadDashboard();
 
-    alert(error.message);
+
+      alert(
+        currentLang === "ar"
+          ? "تم إنشاء الحساب"
+          : "Account created"
+      );
+
+    } catch (error) {
+
+      alert(error.message);
+
+    }
+
   }
-});
+);
 
 
 // =========================
@@ -760,78 +1173,92 @@ $("userAdd")?.addEventListener("submit", async e => {
 
 async function loadTasks() {
 
-  const box = $("tasksTable");
+  const box =
+    $("tasksTable");
 
   if (!box) return;
 
+
   try {
 
-    const rows = await api("/api/tasks");
+    const rows =
+      await api("/api/tasks");
+
 
     if (!rows.length) {
 
       box.innerHTML =
-        `<p class="muted">لا توجد مهام.</p>`;
+        `<p class="muted">${
+          currentLang === "ar"
+            ? "لا توجد مهام."
+            : "No tasks."
+        }</p>`;
 
       return;
+
     }
 
+
     box.innerHTML = `
+
       <table class="table">
 
         <thead>
 
           <tr>
             <th>ID</th>
-            <th>الموظف</th>
-            <th>المهمة</th>
-            <th>الاستحقاق</th>
-            <th>الأولوية</th>
-            <th>الحالة</th>
-            <th>إجراء</th>
+            <th>${currentLang === "ar" ? "الموظف" : "Employee"}</th>
+            <th>${currentLang === "ar" ? "المهمة" : "Task"}</th>
+            <th>${currentLang === "ar" ? "الاستحقاق" : "Due Date"}</th>
+            <th>${currentLang === "ar" ? "الأولوية" : "Priority"}</th>
+            <th>${currentLang === "ar" ? "الحالة" : "Status"}</th>
+            <th>${currentLang === "ar" ? "إجراء" : "Action"}</th>
           </tr>
 
         </thead>
 
         <tbody>
 
-          ${rows.map(t => `
+          ${rows.map(task => `
+
             <tr>
 
+              <td>${task.id}</td>
+
               <td>
-                ${t.id}
+                ${escapeHtml(task.employee)}
               </td>
 
               <td>
-                ${escapeHtml(t.employee)}
+                ${escapeHtml(task.title)}
               </td>
 
               <td>
-                ${escapeHtml(t.title)}
+                ${escapeHtml(task.due_date || "")}
               </td>
 
               <td>
-                ${escapeHtml(t.due_date || "")}
+                ${escapeHtml(task.priority)}
               </td>
 
               <td>
-                ${escapeHtml(t.priority)}
-              </td>
-
-              <td>
-                ${escapeHtml(t.status)}
+                ${escapeHtml(task.status)}
               </td>
 
               <td>
 
                 ${
-                  t.status !== "done"
+                  task.status !== "done"
                     ? `
                       <button
                         class="primary"
-                        onclick="doneTask(${t.id})"
+                        onclick="doneTask(${task.id})"
                       >
-                        تم
+                        ${
+                          currentLang === "ar"
+                            ? "تم"
+                            : "Done"
+                        }
                       </button>
                     `
                     : "✓"
@@ -840,18 +1267,22 @@ async function loadTasks() {
               </td>
 
             </tr>
+
           `).join("")}
 
         </tbody>
 
       </table>
+
     `;
 
   } catch (error) {
 
     box.innerHTML =
       `<p class="danger">${escapeHtml(error.message)}</p>`;
+
   }
+
 }
 
 
@@ -859,62 +1290,82 @@ async function doneTask(id) {
 
   try {
 
-    await api(`/api/tasks/${id}/done`, {
-      method: "POST"
-    });
+    await api(
+      `/api/tasks/${id}/done`,
+      {
+        method: "POST"
+      }
+    );
 
     await loadTasks();
-
     await loadDashboard();
 
   } catch (error) {
 
     alert(error.message);
+
   }
+
 }
 
 
-window.doneTask = doneTask;
+window.doneTask =
+  doneTask;
 
 
-$("taskAdd")?.addEventListener("submit", async e => {
+$("taskAdd")?.addEventListener(
+  "submit",
+  async e => {
 
-  e.preventDefault();
+    e.preventDefault();
 
-  const form =
-    Object.fromEntries(
-      new FormData($("taskAdd")).entries()
-    );
 
-  try {
+    const form =
+      Object.fromEntries(
+        new FormData(
+          $("taskAdd")
+        ).entries()
+      );
 
-    await api("/api/tasks", {
-      method: "POST",
 
-      headers: {
-        "Content-Type": "application/json"
-      },
+    try {
 
-      body: JSON.stringify(form)
-    });
+      await api(
+        "/api/tasks",
+        {
+          method: "POST",
 
-    $("taskAdd").reset();
+          headers: {
+            "Content-Type":
+              "application/json"
+          },
 
-    await loadTasks();
+          body:
+            JSON.stringify(form)
+        }
+      );
 
-    await loadDashboard();
 
-    alert(
-      currentLang === "ar"
-        ? "تمت إضافة المهمة"
-        : "Task added"
-    );
+      $("taskAdd").reset();
 
-  } catch (error) {
+      await loadTasks();
+      await loadDashboard();
 
-    alert(error.message);
+
+      alert(
+        currentLang === "ar"
+          ? "تمت إضافة المهمة"
+          : "Task added"
+      );
+
+    } catch (error) {
+
+      alert(error.message);
+
+    }
+
   }
-});
+);
 
 
 // =========================
@@ -923,33 +1374,44 @@ $("taskAdd")?.addEventListener("submit", async e => {
 
 async function loadClients() {
 
-  const box = $("clientsTable");
+  const box =
+    $("clientsTable");
 
   if (!box) return;
 
+
   try {
 
-    const rows = await api("/api/clients");
+    const rows =
+      await api("/api/clients");
+
 
     if (!rows.length) {
 
       box.innerHTML =
-        `<p class="muted">لا يوجد عملاء.</p>`;
+        `<p class="muted">${
+          currentLang === "ar"
+            ? "لا يوجد عملاء."
+            : "No clients."
+        }</p>`;
 
       return;
+
     }
 
+
     box.innerHTML = `
+
       <table class="table">
 
         <thead>
 
           <tr>
             <th>ID</th>
-            <th>اسم العميل</th>
-            <th>جهة الاتصال</th>
-            <th>الهاتف</th>
-            <th>ملاحظات</th>
+            <th>${currentLang === "ar" ? "اسم العميل" : "Client Name"}</th>
+            <th>${currentLang === "ar" ? "جهة الاتصال" : "Contact"}</th>
+            <th>${currentLang === "ar" ? "الهاتف" : "Phone"}</th>
+            <th>${currentLang === "ar" ? "ملاحظات" : "Notes"}</th>
           </tr>
 
         </thead>
@@ -957,6 +1419,7 @@ async function loadClients() {
         <tbody>
 
           ${rows.map(c => `
+
             <tr>
 
               <td>
@@ -980,57 +1443,77 @@ async function loadClients() {
               </td>
 
             </tr>
+
           `).join("")}
 
         </tbody>
 
       </table>
+
     `;
 
   } catch (error) {
 
     box.innerHTML =
       `<p class="danger">${escapeHtml(error.message)}</p>`;
+
   }
+
 }
 
 
-$("clientAdd")?.addEventListener("submit", async e => {
+$("clientAdd")?.addEventListener(
+  "submit",
+  async e => {
 
-  e.preventDefault();
+    e.preventDefault();
 
-  const form =
-    Object.fromEntries(
-      new FormData($("clientAdd")).entries()
-    );
 
-  try {
+    const form =
+      Object.fromEntries(
+        new FormData(
+          $("clientAdd")
+        ).entries()
+      );
 
-    await api("/api/clients", {
-      method: "POST",
 
-      headers: {
-        "Content-Type": "application/json"
-      },
+    try {
 
-      body: JSON.stringify(form)
-    });
+      await api(
+        "/api/clients",
+        {
+          method: "POST",
 
-    $("clientAdd").reset();
+          headers: {
+            "Content-Type":
+              "application/json"
+          },
 
-    await loadClients();
+          body:
+            JSON.stringify(form)
+        }
+      );
 
-    alert(
-      currentLang === "ar"
-        ? "تمت إضافة العميل"
-        : "Client added"
-    );
 
-  } catch (error) {
+      $("clientAdd").reset();
 
-    alert(error.message);
+      await loadClients();
+
+
+      alert(
+        currentLang === "ar"
+          ? "تمت إضافة العميل"
+          : "Client added"
+      );
+
+    } catch (error) {
+
+      alert(error.message);
+
+    }
+
   }
-});
+);
 
 
 // =========================
@@ -1039,12 +1522,14 @@ $("clientAdd")?.addEventListener("submit", async e => {
 
 function renderAttendanceLabels() {
 
-  const title = $("attendanceTitle");
+  const title =
+    $("attendanceTitle");
 
   if (title) {
     title.textContent =
       t().attendance.title;
   }
+
 
   const todayTitle =
     $("attendanceTodayTitle");
@@ -1054,6 +1539,7 @@ function renderAttendanceLabels() {
       t().attendance.today;
   }
 
+
   const adminTitle =
     $("attendanceAdminTitle");
 
@@ -1061,6 +1547,7 @@ function renderAttendanceLabels() {
     adminTitle.textContent =
       t().attendance.adminTitle;
   }
+
 
   const exportBtn =
     $("attendanceExport");
@@ -1070,6 +1557,7 @@ function renderAttendanceLabels() {
       t().attendance.export;
   }
 
+
   const filterLabel =
     $("attendanceFilterLabel");
 
@@ -1077,6 +1565,7 @@ function renderAttendanceLabels() {
     filterLabel.textContent =
       t().attendance.filter;
   }
+
 }
 
 
@@ -1088,28 +1577,30 @@ function formatDateTime(value) {
 
   if (!value) return "-";
 
-  const d = new Date(value);
+
+  const d =
+    new Date(value);
+
 
   if (Number.isNaN(d.getTime())) {
     return String(value);
   }
 
+
   return d.toLocaleString(
     currentLang === "ar"
       ? "ar-SA"
       : "en-SA",
-
     {
       timeZone: "Asia/Riyadh",
-
       year: "numeric",
       month: "2-digit",
       day: "2-digit",
-
       hour: "2-digit",
       minute: "2-digit"
     }
   );
+
 }
 
 
@@ -1117,24 +1608,27 @@ function formatTime(value) {
 
   if (!value) return "-";
 
-  const d = new Date(value);
+
+  const d =
+    new Date(value);
+
 
   if (Number.isNaN(d.getTime())) {
     return String(value);
   }
 
+
   return d.toLocaleTimeString(
     currentLang === "ar"
       ? "ar-SA"
       : "en-SA",
-
     {
       timeZone: "Asia/Riyadh",
-
       hour: "2-digit",
       minute: "2-digit"
     }
   );
+
 }
 
 
@@ -1144,14 +1638,19 @@ function formatTime(value) {
 
 async function loadAttendance() {
 
-  const box = $("attendanceToday");
+  const box =
+    $("attendanceToday");
 
   if (!box) return;
+
 
   try {
 
     const record =
-      await api("/api/attendance/today");
+      await api(
+        "/api/attendance/today"
+      );
+
 
     if (!record) {
 
@@ -1196,6 +1695,7 @@ async function loadAttendance() {
       `;
 
       return;
+
     }
 
 
@@ -1223,6 +1723,7 @@ async function loadAttendance() {
 
       statusText =
         t().attendance.completed;
+
     }
 
 
@@ -1240,13 +1741,11 @@ async function loadAttendance() {
 
         </div>
 
-
         <div>
 
           <strong>
             ${escapeHtml(statusText)}
           </strong>
-
 
           <p class="muted">
 
@@ -1257,7 +1756,6 @@ async function loadAttendance() {
             }
 
           </p>
-
 
           ${
             record.check_out
@@ -1339,7 +1837,9 @@ async function loadAttendance() {
 
     box.innerHTML =
       `<p class="danger">${escapeHtml(error.message)}</p>`;
+
   }
+
 }
 
 
@@ -1351,11 +1851,16 @@ async function checkIn() {
 
   try {
 
-    await api("/api/attendance/check-in", {
-      method: "POST"
-    });
+    await api(
+      "/api/attendance/check-in",
+      {
+        method: "POST"
+      }
+    );
+
 
     await loadAttendance();
+
 
     alert(
       t().attendance.successIn
@@ -1364,7 +1869,9 @@ async function checkIn() {
   } catch (error) {
 
     alert(error.message);
+
   }
+
 }
 
 
@@ -1387,11 +1894,16 @@ async function checkOut() {
 
   try {
 
-    await api("/api/attendance/check-out", {
-      method: "POST"
-    });
+    await api(
+      "/api/attendance/check-out",
+      {
+        method: "POST"
+      }
+    );
+
 
     await loadAttendance();
+
 
     alert(
       t().attendance.successOut
@@ -1399,323 +1911,5 @@ async function checkOut() {
 
 
     if (
-      ["admin", "manager"].includes(
-        me?.role
-      )
-    ) {
-
-      await loadAdminAttendance();
-    }
-
-  } catch (error) {
-
-    alert(error.message);
-  }
-}
-
-
-window.checkIn = checkIn;
-window.checkOut = checkOut;
-
-
-// =========================
-// Attendance - Admin
-// =========================
-
-async function loadAdminAttendance() {
-
-  const box =
-    $("attendanceTable");
-
-  if (!box) return;
-
-
-  try {
-
-    const date =
-      $("attendanceDate")?.value || "";
-
-
-    const url = date
-      ? `/api/attendance?date=${encodeURIComponent(date)}`
-      : "/api/attendance";
-
-
-    const rows =
-      await api(url);
-
-
-    if (!rows.length) {
-
-      box.innerHTML = `
-
-        <p class="muted">
-
-          ${escapeHtml(
-            t().attendance.noData
-          )}
-
-        </p>
-
-      `;
-
-      return;
-    }
-
-
-    box.innerHTML = `
-
-      <table class="table">
-
-        <thead>
-
-          <tr>
-
-            <th>
-              ${t().attendance.date}
-            </th>
-
-            <th>
-              ${t().attendance.employee}
-            </th>
-
-            <th>
-              ${t().attendance.username}
-            </th>
-
-            <th>
-              ${t().attendance.checkInTime}
-            </th>
-
-            <th>
-              ${t().attendance.checkOutTime}
-            </th>
-
-            <th>
-              ${t().attendance.hours}
-            </th>
-
-            <th>
-              ${t().attendance.status}
-            </th>
-
-          </tr>
-
-        </thead>
-
-
-        <tbody>
-
-          ${rows.map(r => {
-
-            let status = "";
-
-
-            if (!r.check_in) {
-
-              status =
-                t().attendance.notCheckedIn;
-
-            } else if (!r.check_out) {
-
-              status =
-                t().attendance.working;
-
-            } else {
-
-              status =
-                t().attendance.completed;
-            }
-
-
-            return `
-
-              <tr>
-
-                <td>
-                  ${escapeHtml(
-                    String(
-                      r.work_date || ""
-                    )
-                  )}
-                </td>
-
-
-                <td>
-                  ${escapeHtml(
-                    r.employee || ""
-                  )}
-                </td>
-
-
-                <td>
-                  ${escapeHtml(
-                    r.username || ""
-                  )}
-                </td>
-
-
-                <td>
-                  ${escapeHtml(
-                    formatTime(
-                      r.check_in
-                    )
-                  )}
-                </td>
-
-
-                <td>
-                  ${escapeHtml(
-                    formatTime(
-                      r.check_out
-                    )
-                  )}
-                </td>
-
-
-                <td>
-
-                  ${
-                    r.hours !== null &&
-                    r.hours !== undefined
-
-                      ? `
-
-                        ${escapeHtml(
-                          String(r.hours)
-                        )}
-
-                        ${
-                          currentLang === "ar"
-                            ? "ساعة"
-                            : "h"
-                        }
-
-                      `
-
-                      : "-"
-                  }
-
-                </td>
-
-
-                <td>
-
-                  <span
-                    class="badge ${
-                      r.check_out
-                        ? "approved"
-                        : r.check_in
-                          ? "pending"
-                          : "rejected"
-                    }"
-                  >
-
-                    ${escapeHtml(status)}
-
-                  </span>
-
-                </td>
-
-              </tr>
-
-            `;
-
-          }).join("")}
-
-        </tbody>
-
-      </table>
-
-    `;
-
-  } catch (error) {
-
-    box.innerHTML =
-      `<p class="danger">${escapeHtml(error.message)}</p>`;
-  }
-}
-
-
-// =========================
-// Attendance Filter
-// =========================
-
-$("attendanceDate")?.addEventListener(
-  "change",
-  loadAdminAttendance
-);
-
-
-// =========================
-// Attendance Export
-// =========================
-
-$("attendanceExport")?.addEventListener(
-  "click",
-  () => {
-
-    window.location.href =
-      "/api/attendance/export";
-
-  }
-);
-
-
-// =========================
-// Utilities
-// =========================
-
-function escapeHtml(value) {
-
-  return String(value ?? "")
-
-    .replaceAll(
-      "&",
-      "&amp;"
-    )
-
-    .replaceAll(
-      "<",
-      "&lt;"
-    )
-
-    .replaceAll(
-      ">",
-      "&gt;"
-    )
-
-    .replaceAll(
-      '"',
-      "&quot;"
-    )
-
-    .replaceAll(
-      "'",
-      "&#039;"
-    );
-}
-
-
-// =========================
-// Service Worker
-// =========================
-
-if ("serviceWorker" in navigator) {
-
-  navigator.serviceWorker.register("/sw.js")
-    .catch(error => {
-      console.error(
-        "Service Worker error:",
-        error
-      );
-    });
-
-}
-
-
-// =========================
-// Start
-// =========================
-
-boot();
+      ["admin", "man]()
+```
