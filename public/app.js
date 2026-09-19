@@ -101,6 +101,7 @@ function t() {
   return translations[currentLang];
 }
 
+
 // =========================
 // API helper
 // =========================
@@ -128,6 +129,39 @@ async function api(url, options = {}) {
   return data;
 }
 
+
+// =========================
+// PAGE DISPLAY
+// =========================
+
+function showPage(page) {
+  document.querySelectorAll(".page").forEach(section => {
+    section.classList.add("hidden");
+  });
+
+  const target = $(page);
+
+  if (target) {
+    target.classList.remove("hidden");
+  }
+
+  document
+    .querySelectorAll(".side button[data-page]")
+    .forEach(btn => {
+      btn.classList.toggle(
+        "active",
+        btn.dataset.page === page
+      );
+    });
+
+  if ($("pageTitle")) {
+    $("pageTitle").textContent =
+      t().pageTitles[page] ||
+      page;
+  }
+}
+
+
 // =========================
 // Boot
 // =========================
@@ -144,6 +178,9 @@ async function boot() {
 
     $("login").style.display = "none";
     $("app").style.display = "block";
+
+    // مهم جداً: إظهار لوحة التحكم
+    showPage("dashboard");
 
     if (!["admin", "manager"].includes(me.role)) {
       document.querySelectorAll(".adminOnly").forEach(el => {
@@ -174,14 +211,18 @@ async function boot() {
   }
 }
 
+
 // =========================
 // Language
 // =========================
 
 function updateLanguage() {
   document.documentElement.lang = currentLang;
+
   document.documentElement.dir =
-    currentLang === "ar" ? "rtl" : "ltr";
+    currentLang === "ar"
+      ? "rtl"
+      : "ltr";
 
   const sideButtons =
     document.querySelectorAll(".side button[data-page]");
@@ -222,6 +263,7 @@ function updateLanguage() {
   renderAttendanceLabels();
 }
 
+
 // =========================
 // Navigation
 // =========================
@@ -233,29 +275,9 @@ document.addEventListener("click", async e => {
 
   const page = btn.dataset.page;
 
-  document.querySelectorAll(".page").forEach(section => {
-    section.classList.add("hidden");
-  });
+  showPage(page);
 
-  const target = $(page);
-
-  if (target) {
-    target.classList.remove("hidden");
-  }
-
-  document
-    .querySelectorAll(".side button[data-page]")
-    .forEach(b => b.classList.remove("active"));
-
-  btn.classList.add("active");
-
-  if ($("pageTitle")) {
-    $("pageTitle").textContent =
-      t().pageTitles[page] ||
-      page;
-  }
-
-  if (page === "attendance") {
+  if (page === "attendance" && me) {
     await loadAttendance();
 
     if (["admin", "manager"].includes(me.role)) {
@@ -263,6 +285,7 @@ document.addEventListener("click", async e => {
     }
   }
 });
+
 
 // =========================
 // Language button
@@ -293,6 +316,7 @@ $("langBtn")?.addEventListener("click", () => {
   }
 });
 
+
 // =========================
 // Login
 // =========================
@@ -305,9 +329,11 @@ $("loginForm")?.addEventListener("submit", async e => {
   try {
     me = await api("/api/login", {
       method: "POST",
+
       headers: {
         "Content-Type": "application/json"
       },
+
       body: JSON.stringify({
         username: $("username").value.trim(),
         password: $("password").value
@@ -316,6 +342,9 @@ $("loginForm")?.addEventListener("submit", async e => {
 
     $("login").style.display = "none";
     $("app").style.display = "block";
+
+    // مهم جداً: فتح Dashboard بعد تسجيل الدخول
+    showPage("dashboard");
 
     document.querySelectorAll(".adminOnly").forEach(el => {
       el.style.display =
@@ -344,21 +373,28 @@ $("loginForm")?.addEventListener("submit", async e => {
 
   } catch (error) {
     $("loginErr").textContent = error.message;
+
     $("loginErr").classList.remove("hidden");
   }
 });
+
 
 // =========================
 // Logout
 // =========================
 
 $("logout")?.addEventListener("click", async () => {
-  await api("/api/logout", {
-    method: "POST"
-  });
+  try {
+    await api("/api/logout", {
+      method: "POST"
+    });
+  } catch (error) {
+    console.error(error);
+  }
 
   location.reload();
 });
+
 
 // =========================
 // Dashboard
@@ -368,15 +404,27 @@ async function loadDashboard() {
   try {
     const d = await api("/api/dashboard");
 
-    if ($("sReports")) $("sReports").textContent = d.reports;
-    if ($("sPending")) $("sPending").textContent = d.pending;
-    if ($("sTasks")) $("sTasks").textContent = d.tasks;
-    if ($("sEmployees")) $("sEmployees").textContent = d.employees;
+    if ($("sReports")) {
+      $("sReports").textContent = d.reports;
+    }
+
+    if ($("sPending")) {
+      $("sPending").textContent = d.pending;
+    }
+
+    if ($("sTasks")) {
+      $("sTasks").textContent = d.tasks;
+    }
+
+    if ($("sEmployees")) {
+      $("sEmployees").textContent = d.employees;
+    }
 
   } catch (error) {
     console.error(error);
   }
 }
+
 
 // =========================
 // Reports
@@ -393,11 +441,13 @@ async function loadReports() {
     if (!rows.length) {
       box.innerHTML =
         `<p class="muted">لا توجد ريبورتات حتى الآن.</p>`;
+
       return;
     }
 
     box.innerHTML = `
       <table class="table">
+
         <thead>
           <tr>
             <th>ID</th>
@@ -413,38 +463,69 @@ async function loadReports() {
         </thead>
 
         <tbody>
+
           ${rows.map(r => `
             <tr>
+
               <td>${r.id}</td>
-              <td>${escapeHtml(r.user_name || "")}</td>
-              <td>${escapeHtml(r.title)}</td>
-              <td>${escapeHtml(r.report_date)}</td>
-              <td>${escapeHtml(r.client || "")}</td>
-              <td>${escapeHtml(r.project || "")}</td>
-              <td>${escapeHtml(r.visit_type || "")}</td>
+
+              <td>
+                ${escapeHtml(r.user_name || "")}
+              </td>
+
+              <td>
+                ${escapeHtml(r.title)}
+              </td>
+
+              <td>
+                ${escapeHtml(r.report_date)}
+              </td>
+
+              <td>
+                ${escapeHtml(r.client || "")}
+              </td>
+
+              <td>
+                ${escapeHtml(r.project || "")}
+              </td>
+
+              <td>
+                ${escapeHtml(r.visit_type || "")}
+              </td>
+
               <td>
                 <span class="badge ${r.status}">
                   ${escapeHtml(r.status)}
                 </span>
               </td>
-              <td>${escapeHtml(r.description)}</td>
+
+              <td>
+                ${escapeHtml(r.description)}
+              </td>
+
             </tr>
           `).join("")}
+
         </tbody>
+
       </table>
     `;
 
   } catch (error) {
+
     box.innerHTML =
       `<p class="danger">${escapeHtml(error.message)}</p>`;
   }
 }
 
+
 function showReportForm() {
   $("reportForm")?.classList.remove("hidden");
 
   const dateInput =
-    document.querySelector('#reportAdd input[name="report_date"]');
+    document.querySelector(
+      '#reportAdd input[name="report_date"]'
+    );
 
   if (dateInput && !dateInput.value) {
     dateInput.value =
@@ -452,14 +533,17 @@ function showReportForm() {
   }
 }
 
+
 function hideReportForm() {
   $("reportForm")?.classList.add("hidden");
 }
+
 
 $("reportAdd")?.addEventListener("submit", async e => {
   e.preventDefault();
 
   try {
+
     const formData =
       new FormData($("reportAdd"));
 
@@ -469,9 +553,11 @@ $("reportAdd")?.addEventListener("submit", async e => {
     });
 
     $("reportAdd").reset();
+
     hideReportForm();
 
     await loadReports();
+
     await loadDashboard();
 
     alert(
@@ -485,6 +571,7 @@ $("reportAdd")?.addEventListener("submit", async e => {
   }
 });
 
+
 // =========================
 // Users
 // =========================
@@ -495,10 +582,12 @@ async function loadUsers() {
   if (!box) return;
 
   try {
+
     const rows = await api("/api/users");
 
     box.innerHTML = `
       <table class="table">
+
         <thead>
           <tr>
             <th>ID</th>
@@ -511,26 +600,46 @@ async function loadUsers() {
         </thead>
 
         <tbody>
+
           ${rows.map(u => `
             <tr>
-              <td>${u.id}</td>
-              <td>${escapeHtml(u.name)}</td>
-              <td>${escapeHtml(u.username)}</td>
-              <td>${escapeHtml(u.role)}</td>
+
               <td>
+                ${u.id}
+              </td>
+
+              <td>
+                ${escapeHtml(u.name)}
+              </td>
+
+              <td>
+                ${escapeHtml(u.username)}
+              </td>
+
+              <td>
+                ${escapeHtml(u.role)}
+              </td>
+
+              <td>
+
                 <span class="badge ${
                   Number(u.active)
                     ? "approved"
                     : "rejected"
                 }">
+
                   ${
                     Number(u.active)
                       ? "نشط"
                       : "متوقف"
                   }
+
                 </span>
+
               </td>
+
               <td>
+
                 <button
                   class="${
                     Number(u.active)
@@ -539,22 +648,29 @@ async function loadUsers() {
                   }"
                   onclick="toggleUser(${u.id})"
                 >
+
                   ${
                     Number(u.active)
                       ? "إيقاف"
                       : "تفعيل"
                   }
+
                 </button>
+
               </td>
+
             </tr>
           `).join("")}
+
         </tbody>
+
       </table>
     `;
 
     const select = $("taskUser");
 
     if (select) {
+
       select.innerHTML = rows
         .filter(u => Number(u.active))
         .map(u =>
@@ -566,13 +682,17 @@ async function loadUsers() {
     }
 
   } catch (error) {
+
     box.innerHTML =
       `<p class="danger">${escapeHtml(error.message)}</p>`;
   }
 }
 
+
 async function toggleUser(id) {
+
   try {
+
     await api(`/api/users/${id}/toggle`, {
       method: "POST"
     });
@@ -580,13 +700,17 @@ async function toggleUser(id) {
     await loadUsers();
 
   } catch (error) {
+
     alert(error.message);
   }
 }
 
+
 window.toggleUser = toggleUser;
 
+
 $("userAdd")?.addEventListener("submit", async e => {
+
   e.preventDefault();
 
   const form =
@@ -595,17 +719,21 @@ $("userAdd")?.addEventListener("submit", async e => {
     );
 
   try {
+
     await api("/api/users", {
       method: "POST",
+
       headers: {
         "Content-Type": "application/json"
       },
+
       body: JSON.stringify(form)
     });
 
     $("userAdd").reset();
 
     await loadUsers();
+
     await loadDashboard();
 
     alert(
@@ -615,31 +743,39 @@ $("userAdd")?.addEventListener("submit", async e => {
     );
 
   } catch (error) {
+
     alert(error.message);
   }
 });
+
 
 // =========================
 // Tasks
 // =========================
 
 async function loadTasks() {
+
   const box = $("tasksTable");
 
   if (!box) return;
 
   try {
+
     const rows = await api("/api/tasks");
 
     if (!rows.length) {
+
       box.innerHTML =
         `<p class="muted">لا توجد مهام.</p>`;
+
       return;
     }
 
     box.innerHTML = `
       <table class="table">
+
         <thead>
+
           <tr>
             <th>ID</th>
             <th>الموظف</th>
@@ -649,18 +785,40 @@ async function loadTasks() {
             <th>الحالة</th>
             <th>إجراء</th>
           </tr>
+
         </thead>
 
         <tbody>
+
           ${rows.map(t => `
             <tr>
-              <td>${t.id}</td>
-              <td>${escapeHtml(t.employee)}</td>
-              <td>${escapeHtml(t.title)}</td>
-              <td>${escapeHtml(t.due_date || "")}</td>
-              <td>${escapeHtml(t.priority)}</td>
-              <td>${escapeHtml(t.status)}</td>
+
               <td>
+                ${t.id}
+              </td>
+
+              <td>
+                ${escapeHtml(t.employee)}
+              </td>
+
+              <td>
+                ${escapeHtml(t.title)}
+              </td>
+
+              <td>
+                ${escapeHtml(t.due_date || "")}
+              </td>
+
+              <td>
+                ${escapeHtml(t.priority)}
+              </td>
+
+              <td>
+                ${escapeHtml(t.status)}
+              </td>
+
+              <td>
+
                 ${
                   t.status !== "done"
                     ? `
@@ -673,36 +831,49 @@ async function loadTasks() {
                     `
                     : "✓"
                 }
+
               </td>
+
             </tr>
           `).join("")}
+
         </tbody>
+
       </table>
     `;
 
   } catch (error) {
+
     box.innerHTML =
       `<p class="danger">${escapeHtml(error.message)}</p>`;
   }
 }
 
+
 async function doneTask(id) {
+
   try {
+
     await api(`/api/tasks/${id}/done`, {
       method: "POST"
     });
 
     await loadTasks();
+
     await loadDashboard();
 
   } catch (error) {
+
     alert(error.message);
   }
 }
 
+
 window.doneTask = doneTask;
 
+
 $("taskAdd")?.addEventListener("submit", async e => {
+
   e.preventDefault();
 
   const form =
@@ -711,17 +882,21 @@ $("taskAdd")?.addEventListener("submit", async e => {
     );
 
   try {
+
     await api("/api/tasks", {
       method: "POST",
+
       headers: {
         "Content-Type": "application/json"
       },
+
       body: JSON.stringify(form)
     });
 
     $("taskAdd").reset();
 
     await loadTasks();
+
     await loadDashboard();
 
     alert(
@@ -731,31 +906,39 @@ $("taskAdd")?.addEventListener("submit", async e => {
     );
 
   } catch (error) {
+
     alert(error.message);
   }
 });
+
 
 // =========================
 // Clients
 // =========================
 
 async function loadClients() {
+
   const box = $("clientsTable");
 
   if (!box) return;
 
   try {
+
     const rows = await api("/api/clients");
 
     if (!rows.length) {
+
       box.innerHTML =
         `<p class="muted">لا يوجد عملاء.</p>`;
+
       return;
     }
 
     box.innerHTML = `
       <table class="table">
+
         <thead>
+
           <tr>
             <th>ID</th>
             <th>اسم العميل</th>
@@ -763,29 +946,52 @@ async function loadClients() {
             <th>الهاتف</th>
             <th>ملاحظات</th>
           </tr>
+
         </thead>
 
         <tbody>
+
           ${rows.map(c => `
             <tr>
-              <td>${c.id}</td>
-              <td>${escapeHtml(c.name)}</td>
-              <td>${escapeHtml(c.contact || "")}</td>
-              <td>${escapeHtml(c.phone || "")}</td>
-              <td>${escapeHtml(c.notes || "")}</td>
+
+              <td>
+                ${c.id}
+              </td>
+
+              <td>
+                ${escapeHtml(c.name)}
+              </td>
+
+              <td>
+                ${escapeHtml(c.contact || "")}
+              </td>
+
+              <td>
+                ${escapeHtml(c.phone || "")}
+              </td>
+
+              <td>
+                ${escapeHtml(c.notes || "")}
+              </td>
+
             </tr>
           `).join("")}
+
         </tbody>
+
       </table>
     `;
 
   } catch (error) {
+
     box.innerHTML =
       `<p class="danger">${escapeHtml(error.message)}</p>`;
   }
 }
 
+
 $("clientAdd")?.addEventListener("submit", async e => {
+
   e.preventDefault();
 
   const form =
@@ -794,11 +1000,14 @@ $("clientAdd")?.addEventListener("submit", async e => {
     );
 
   try {
+
     await api("/api/clients", {
       method: "POST",
+
       headers: {
         "Content-Type": "application/json"
       },
+
       body: JSON.stringify(form)
     });
 
@@ -813,47 +1022,65 @@ $("clientAdd")?.addEventListener("submit", async e => {
     );
 
   } catch (error) {
+
     alert(error.message);
   }
 });
 
+
 // =========================
-// Attendance
+// Attendance Labels
 // =========================
 
 function renderAttendanceLabels() {
+
   const title = $("attendanceTitle");
 
   if (title) {
-    title.textContent = t().attendance.title;
+    title.textContent =
+      t().attendance.title;
   }
 
-  const todayTitle = $("attendanceTodayTitle");
+  const todayTitle =
+    $("attendanceTodayTitle");
 
   if (todayTitle) {
-    todayTitle.textContent = t().attendance.today;
+    todayTitle.textContent =
+      t().attendance.today;
   }
 
-  const adminTitle = $("attendanceAdminTitle");
+  const adminTitle =
+    $("attendanceAdminTitle");
 
   if (adminTitle) {
-    adminTitle.textContent = t().attendance.adminTitle;
+    adminTitle.textContent =
+      t().attendance.adminTitle;
   }
 
-  const exportBtn = $("attendanceExport");
+  const exportBtn =
+    $("attendanceExport");
 
   if (exportBtn) {
-    exportBtn.textContent = t().attendance.export;
+    exportBtn.textContent =
+      t().attendance.export;
   }
 
-  const filterLabel = $("attendanceFilterLabel");
+  const filterLabel =
+    $("attendanceFilterLabel");
 
   if (filterLabel) {
-    filterLabel.textContent = t().attendance.filter;
+    filterLabel.textContent =
+      t().attendance.filter;
   }
 }
 
+
+// =========================
+// Attendance Date/Time
+// =========================
+
 function formatDateTime(value) {
+
   if (!value) return "-";
 
   const d = new Date(value);
@@ -866,18 +1093,23 @@ function formatDateTime(value) {
     currentLang === "ar"
       ? "ar-SA"
       : "en-SA",
+
     {
       timeZone: "Asia/Riyadh",
+
       year: "numeric",
       month: "2-digit",
       day: "2-digit",
+
       hour: "2-digit",
       minute: "2-digit"
     }
   );
 }
 
+
 function formatTime(value) {
+
   if (!value) return "-";
 
   const d = new Date(value);
@@ -890,29 +1122,44 @@ function formatTime(value) {
     currentLang === "ar"
       ? "ar-SA"
       : "en-SA",
+
     {
       timeZone: "Asia/Riyadh",
+
       hour: "2-digit",
       minute: "2-digit"
     }
   );
 }
 
+
+// =========================
+// Attendance - Employee
+// =========================
+
 async function loadAttendance() {
+
   const box = $("attendanceToday");
 
   if (!box) return;
 
   try {
+
     const record =
       await api("/api/attendance/today");
 
     if (!record) {
+
       box.innerHTML = `
+
         <div class="attendanceStatus">
-          <div class="attendanceIcon">🕐</div>
+
+          <div class="attendanceIcon">
+            🕐
+          </div>
 
           <div>
+
             <strong>
               ${escapeHtml(
                 t().attendance.notCheckedIn
@@ -920,13 +1167,17 @@ async function loadAttendance() {
             </strong>
 
             <p class="muted">
+
               ${
                 currentLang === "ar"
                   ? "لم يتم تسجيل حضورك اليوم."
                   : "You have not checked in today."
               }
+
             </p>
+
           </div>
+
         </div>
 
         <button
@@ -936,10 +1187,12 @@ async function loadAttendance() {
         >
           ${t().attendance.checkIn}
         </button>
+
       `;
 
       return;
     }
+
 
     const checkIn =
       formatTime(record.check_in);
@@ -947,119 +1200,175 @@ async function loadAttendance() {
     const checkOut =
       formatTime(record.check_out);
 
+
     let statusText;
 
+
     if (!record.check_in) {
+
       statusText =
         t().attendance.notCheckedIn;
 
     } else if (!record.check_out) {
+
       statusText =
         t().attendance.working;
 
     } else {
+
       statusText =
         t().attendance.completed;
     }
 
+
     box.innerHTML = `
+
       <div class="attendanceStatus">
+
         <div class="attendanceIcon">
+
           ${
             record.check_out
               ? "✅"
               : "🟢"
           }
+
         </div>
 
+
         <div>
-          <strong>${escapeHtml(statusText)}</strong>
+
+          <strong>
+            ${escapeHtml(statusText)}
+          </strong>
+
 
           <p class="muted">
+
             ${
               currentLang === "ar"
                 ? `الحضور: ${checkIn}`
                 : `Check in: ${checkIn}`
             }
+
           </p>
+
 
           ${
             record.check_out
               ? `
+
                 <p class="muted">
+
                   ${
                     currentLang === "ar"
                       ? `الانصراف: ${checkOut}`
                       : `Check out: ${checkOut}`
                   }
+
                 </p>
+
               `
               : ""
           }
 
+
           ${
             record.hours !== null &&
             record.hours !== undefined
+
               ? `
+
                 <p class="attendanceHours">
-                  ⏱ ${record.hours} ${
+
+                  ⏱ ${record.hours}
+
+                  ${
                     currentLang === "ar"
                       ? "ساعة"
                       : "hours"
                   }
+
                 </p>
+
               `
+
               : `
+
                 <p class="muted">
                   ${t().attendance.noCheckout}
                 </p>
+
               `
           }
+
         </div>
+
       </div>
+
 
       ${
         record.check_in &&
         !record.check_out
+
           ? `
+
             <button
               id="checkOutBtn"
               class="danger attendanceBtn"
               onclick="checkOut()"
             >
+
               ${t().attendance.checkOut}
+
             </button>
+
           `
+
           : ""
       }
+
     `;
 
   } catch (error) {
+
     box.innerHTML =
       `<p class="danger">${escapeHtml(error.message)}</p>`;
   }
 }
 
+
+// =========================
+// Check In
+// =========================
+
 async function checkIn() {
+
   try {
+
     await api("/api/attendance/check-in", {
       method: "POST"
     });
 
     await loadAttendance();
 
-    if (currentLang === "ar") {
-      alert(t().attendance.successIn);
-    } else {
-      alert(t().attendance.successIn);
-    }
+    alert(
+      t().attendance.successIn
+    );
 
   } catch (error) {
+
     alert(error.message);
   }
 }
 
+
+// =========================
+// Check Out
+// =========================
+
 async function checkOut() {
+
   if (
     !confirm(
       currentLang === "ar"
@@ -1070,163 +1379,335 @@ async function checkOut() {
     return;
   }
 
+
   try {
+
     await api("/api/attendance/check-out", {
       method: "POST"
     });
 
     await loadAttendance();
 
-    alert(t().attendance.successOut);
+    alert(
+      t().attendance.successOut
+    );
 
-    if (["admin", "manager"].includes(me?.role)) {
+
+    if (
+      ["admin", "manager"].includes(
+        me?.role
+      )
+    ) {
+
       await loadAdminAttendance();
     }
 
   } catch (error) {
+
     alert(error.message);
   }
 }
 
+
 window.checkIn = checkIn;
 window.checkOut = checkOut;
 
+
+// =========================
+// Attendance - Admin
+// =========================
+
 async function loadAdminAttendance() {
-  const box = $("attendanceTable");
+
+  const box =
+    $("attendanceTable");
 
   if (!box) return;
 
+
   try {
+
     const date =
       $("attendanceDate")?.value || "";
+
 
     const url = date
       ? `/api/attendance?date=${encodeURIComponent(date)}`
       : "/api/attendance";
 
-    const rows = await api(url);
+
+    const rows =
+      await api(url);
+
 
     if (!rows.length) {
+
       box.innerHTML = `
+
         <p class="muted">
-          ${escapeHtml(t().attendance.noData)}
+
+          ${escapeHtml(
+            t().attendance.noData
+          )}
+
         </p>
+
       `;
+
       return;
     }
 
+
     box.innerHTML = `
+
       <table class="table">
+
         <thead>
+
           <tr>
-            <th>${t().attendance.date}</th>
-            <th>${t().attendance.employee}</th>
-            <th>${t().attendance.username}</th>
-            <th>${t().attendance.checkInTime}</th>
-            <th>${t().attendance.checkOutTime}</th>
-            <th>${t().attendance.hours}</th>
-            <th>${t().attendance.status}</th>
+
+            <th>
+              ${t().attendance.date}
+            </th>
+
+            <th>
+              ${t().attendance.employee}
+            </th>
+
+            <th>
+              ${t().attendance.username}
+            </th>
+
+            <th>
+              ${t().attendance.checkInTime}
+            </th>
+
+            <th>
+              ${t().attendance.checkOutTime}
+            </th>
+
+            <th>
+              ${t().attendance.hours}
+            </th>
+
+            <th>
+              ${t().attendance.status}
+            </th>
+
           </tr>
+
         </thead>
 
+
         <tbody>
+
           ${rows.map(r => {
 
             let status = "";
 
+
             if (!r.check_in) {
+
               status =
                 t().attendance.notCheckedIn;
+
             } else if (!r.check_out) {
+
               status =
                 t().attendance.working;
+
             } else {
+
               status =
                 t().attendance.completed;
             }
 
+
             return `
+
               <tr>
-                <td>${escapeHtml(String(r.work_date || ""))}</td>
 
                 <td>
-                  ${escapeHtml(r.employee || "")}
+                  ${escapeHtml(
+                    String(
+                      r.work_date || ""
+                    )
+                  )}
                 </td>
 
-                <td>
-                  ${escapeHtml(r.username || "")}
-                </td>
 
                 <td>
-                  ${escapeHtml(formatTime(r.check_in))}
+                  ${escapeHtml(
+                    r.employee || ""
+                  )}
                 </td>
 
-                <td>
-                  ${escapeHtml(formatTime(r.check_out))}
-                </td>
 
                 <td>
+                  ${escapeHtml(
+                    r.username || ""
+                  )}
+                </td>
+
+
+                <td>
+                  ${escapeHtml(
+                    formatTime(
+                      r.check_in
+                    )
+                  )}
+                </td>
+
+
+                <td>
+                  ${escapeHtml(
+                    formatTime(
+                      r.check_out
+                    )
+                  )}
+                </td>
+
+
+                <td>
+
                   ${
                     r.hours !== null &&
                     r.hours !== undefined
-                      ? `${escapeHtml(String(r.hours))} ${
+
+                      ? `
+
+                        ${escapeHtml(
+                          String(r.hours)
+                        )}
+
+                        ${
                           currentLang === "ar"
                             ? "ساعة"
                             : "h"
-                        }`
+                        }
+
+                      `
+
                       : "-"
                   }
+
                 </td>
 
+
                 <td>
-                  <span class="badge ${
-                    r.check_out
-                      ? "approved"
-                      : r.check_in
-                        ? "pending"
-                        : "rejected"
-                  }">
+
+                  <span
+                    class="badge ${
+                      r.check_out
+                        ? "approved"
+                        : r.check_in
+                          ? "pending"
+                          : "rejected"
+                    }"
+                  >
+
                     ${escapeHtml(status)}
+
                   </span>
+
                 </td>
+
               </tr>
+
             `;
+
           }).join("")}
+
         </tbody>
+
       </table>
+
     `;
 
   } catch (error) {
+
     box.innerHTML =
       `<p class="danger">${escapeHtml(error.message)}</p>`;
   }
 }
+
+
+// =========================
+// Attendance Filter
+// =========================
 
 $("attendanceDate")?.addEventListener(
   "change",
   loadAdminAttendance
 );
 
+
+// =========================
+// Attendance Export
+// =========================
+
+$("attendanceExport")?.addEventListener(
+  "click",
+  () => {
+
+    window.location.href =
+      "/api/attendance/export";
+
+  }
+);
+
+
 // =========================
 // Utilities
 // =========================
 
 function escapeHtml(value) {
+
   return String(value ?? "")
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;")
-    .replaceAll("'", "&#039;");
+
+    .replaceAll(
+      "&",
+      "&amp;"
+    )
+
+    .replaceAll(
+      "<",
+      "&lt;"
+    )
+
+    .replaceAll(
+      ">",
+      "&gt;"
+    )
+
+    .replaceAll(
+      '"',
+      "&quot;"
+    )
+
+    .replaceAll(
+      "'",
+      "&#039;"
+    );
 }
+
 
 // =========================
 // Service Worker
 // =========================
 
 if ("serviceWorker" in navigator) {
-  navigator.serviceWorker.register("/sw.js");
+
+  navigator.serviceWorker.register("/sw.js")
+    .catch(error => {
+      console.error(
+        "Service Worker error:",
+        error
+      );
+    });
+
 }
+
 
 // =========================
 // Start
