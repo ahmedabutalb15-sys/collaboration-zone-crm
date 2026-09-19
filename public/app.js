@@ -2359,9 +2359,20 @@ function escapeHtml(value) {
 
 }
 
-
 // =========================
 // Start App
 // =========================
 
-boot();
+window.addEventListener("DOMContentLoaded", () => {
+
+  // Always show login screen when opening the website
+  if ($("login")) {
+    $("login").style.display = "grid";
+  }
+
+  if ($("app")) {
+    $("app").classList.add("hidden");
+    $("app").style.display = "none";
+  }
+
+});
