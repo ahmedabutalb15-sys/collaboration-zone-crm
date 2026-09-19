@@ -1,4 +1,3 @@
-```javascript
 const $ = id => document.getElementById(id);
 
 let me = null;
@@ -190,10 +189,12 @@ async function boot() {
       });
     }
 
-    $("who").textContent =
-      currentLang === "ar"
-        ? `مرحباً ${me.name}`
-        : `Welcome ${me.name}`;
+    if ($("who")) {
+      $("who").textContent =
+        currentLang === "ar"
+          ? `مرحباً ${me.name}`
+          : `Welcome ${me.name}`;
+    }
 
     updateLanguage();
 
@@ -205,11 +206,14 @@ async function boot() {
 
     if (["admin", "manager"].includes(me.role)) {
       await loadUsers();
-      await loadAdminAttendance();
+
+      if (typeof loadAdminAttendance === "function") {
+        await loadAdminAttendance();
+      }
     }
 
   } catch (error) {
-    console.error(error);
+    console.error("BOOT ERROR:", error);
   }
 }
 
@@ -226,7 +230,6 @@ function updateLanguage() {
     currentLang === "ar" ? "rtl" : "ltr";
 
 
-  // Sidebar
   document
     .querySelectorAll(".side button[data-page]")
     .forEach(btn => {
@@ -240,7 +243,6 @@ function updateLanguage() {
     });
 
 
-  // Logout
   const logout = $("logout");
 
   if (logout) {
@@ -248,7 +250,6 @@ function updateLanguage() {
   }
 
 
-  // Current page title
   const currentPage =
     document.querySelector(".page:not(.hidden)")?.id ||
     "dashboard";
@@ -260,7 +261,6 @@ function updateLanguage() {
   }
 
 
-  // Language button
   const langBtn = $("langBtn");
 
   if (langBtn) {
@@ -271,7 +271,6 @@ function updateLanguage() {
   }
 
 
-  // Topbar
   if ($("who") && me) {
     $("who").textContent =
       currentLang === "ar"
@@ -280,15 +279,10 @@ function updateLanguage() {
   }
 
 
-  // Translate static HTML
   translateStaticUI();
 
-
-  // Attendance
   renderAttendanceLabels();
 
-
-  // Re-render dynamic sections
   loadReports();
   loadTasks();
   loadClients();
@@ -299,11 +293,12 @@ function updateLanguage() {
     ["admin", "manager"].includes(me.role)
   ) {
     loadUsers();
-    loadAdminAttendance();
+
+    if (typeof loadAdminAttendance === "function") {
+      loadAdminAttendance();
+    }
   }
 
-
-  // Mobile navigation fix
   fixMobileNavigation();
 }
 
@@ -395,13 +390,6 @@ function translateStaticUI() {
 
   elements.forEach(el => {
 
-    if (
-      el.children.length > 0 &&
-      !el.matches("button, label, th, h1, h2, h3, h4, h5, p, span, .muted")
-    ) {
-      return;
-    }
-
     const original =
       el.textContent.trim();
 
@@ -427,7 +415,6 @@ function translateStaticUI() {
   });
 
 
-  // Inputs placeholders
   document
     .querySelectorAll("input, textarea")
     .forEach(input => {
@@ -538,7 +525,8 @@ document.addEventListener("click", async e => {
     await loadAttendance();
 
     if (
-      ["admin", "manager"].includes(me.role)
+      ["admin", "manager"].includes(me.role) &&
+      typeof loadAdminAttendance === "function"
     ) {
       await loadAdminAttendance();
     }
@@ -552,7 +540,11 @@ document.addEventListener("click", async e => {
 // Language button
 // =========================
 
-$("langBtn")?.addEventListener("click", async () => {
+document.addEventListener("click", async e => {
+
+  const btn = e.target.closest("#langBtn");
+
+  if (!btn) return;
 
   currentLang =
     currentLang === "ar"
@@ -576,7 +568,10 @@ $("langBtn")?.addEventListener("click", async () => {
     ["admin", "manager"].includes(me?.role)
   ) {
     await loadUsers();
-    await loadAdminAttendance();
+
+    if (typeof loadAdminAttendance === "function") {
+      await loadAdminAttendance();
+    }
   }
 
 });
@@ -586,89 +581,122 @@ $("langBtn")?.addEventListener("click", async () => {
 // Login
 // =========================
 
-$("loginForm")?.addEventListener(
-  "submit",
-  async e => {
+document.addEventListener("submit", async e => {
 
-    e.preventDefault();
+  if (e.target.id !== "loginForm") return;
 
-    $("loginErr").classList.add("hidden");
+  e.preventDefault();
 
-    try {
+  const loginErr = $("loginErr");
 
-      me = await api("/api/login", {
-        method: "POST",
+  if (loginErr) {
+    loginErr.classList.add("hidden");
+    loginErr.textContent = "";
+  }
 
-        headers: {
-          "Content-Type": "application/json"
-        },
+  try {
 
-        body: JSON.stringify({
-          username:
-            $("username").value.trim(),
+    const username =
+      $("username")?.value.trim();
 
-          password:
-            $("password").value
-        })
+    const password =
+      $("password")?.value;
+
+    if (!username || !password) {
+      throw new Error(
+        currentLang === "ar"
+          ? "اكتب اسم المستخدم وكلمة المرور"
+          : "Enter username and password"
+      );
+    }
+
+
+    me = await api("/api/login", {
+      method: "POST",
+
+      headers: {
+        "Content-Type": "application/json"
+      },
+
+      body: JSON.stringify({
+        username,
+        password
+      })
+    });
+
+
+    $("login").style.display = "none";
+
+    $("app").classList.remove("hidden");
+    $("app").style.display = "block";
+
+    showPage("dashboard");
+
+
+    document
+      .querySelectorAll(".adminOnly")
+      .forEach(el => {
+
+        el.style.display =
+          ["admin", "manager"]
+            .includes(me.role)
+            ? ""
+            : "none";
+
       });
 
 
-      $("login").style.display = "none";
-
-      $("app").classList.remove("hidden");
-      $("app").style.display = "block";
-
-      showPage("dashboard");
-
-
-      document
-        .querySelectorAll(".adminOnly")
-        .forEach(el => {
-
-          el.style.display =
-            ["admin", "manager"]
-              .includes(me.role)
-              ? ""
-              : "none";
-
-        });
-
-
+    if ($("who")) {
       $("who").textContent =
         currentLang === "ar"
           ? `مرحباً ${me.name}`
           : `Welcome ${me.name}`;
+    }
 
 
-      updateLanguage();
+    updateLanguage();
 
 
-      await loadDashboard();
-      await loadReports();
-      await loadTasks();
-      await loadClients();
-      await loadAttendance();
+    await loadDashboard();
+    await loadReports();
+    await loadTasks();
+    await loadClients();
+    await loadAttendance();
 
 
-      if (
-        ["admin", "manager"].includes(me.role)
-      ) {
-        await loadUsers();
+    if (
+      ["admin", "manager"].includes(me.role)
+    ) {
+
+      await loadUsers();
+
+      if (typeof loadAdminAttendance === "function") {
         await loadAdminAttendance();
       }
 
-    } catch (error) {
+    }
 
-      $("loginErr").textContent =
-        error.message;
+  } catch (error) {
 
-      $("loginErr")
-        .classList.remove("hidden");
+    console.error("LOGIN ERROR:", error);
+
+    if (loginErr) {
+
+      loginErr.textContent =
+        error.message ||
+        (
+          currentLang === "ar"
+            ? "فشل تسجيل الدخول"
+            : "Login failed"
+        );
+
+      loginErr.classList.remove("hidden");
 
     }
 
   }
-);
+
+});
 
 
 // =========================
@@ -1910,8 +1938,9 @@ async function checkOut() {
     );
 
 
-       if (
-      ["admin", "manager"].includes(me?.role)
+    if (
+      ["admin", "manager"].includes(me?.role) &&
+      typeof loadAdminAttendance === "function"
     ) {
       await loadAdminAttendance();
     }
@@ -1950,6 +1979,7 @@ async function exportAttendance() {
   }
 
 }
+
 
 window.checkIn = checkIn;
 window.checkOut = checkOut;
