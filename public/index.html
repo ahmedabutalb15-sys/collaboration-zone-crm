@@ -1,13 +1,18 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
   <title>Collaboration Zone CRM</title>
 
-  <link rel="manifest" href="/manifest.json">
-  <link rel="icon" href="/logo.png">
+  <meta name="theme-color" content="#123b63" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+
+  <link rel="manifest" href="/manifest.json" />
+  <link rel="icon" href="/logo.png" />
+  <link rel="stylesheet" href="/style.css" />
 
   <style>
     [hidden] {
@@ -18,127 +23,182 @@
 
 <body>
 
-  <!-- LOGIN -->
-  <section id="login" style="display: none;">
+  <!-- =========================
+       LOGIN
+  ========================== -->
+
+  <section id="login">
     <div class="login-card">
 
-      <img src="/logo.png" alt="Collaboration Zone" class="login-logo">
+      <img
+        src="/logo.png"
+        class="login-logo"
+        alt="Collaboration Zone"
+      />
 
-      <h1 class="login-title">Collaboration Zone</h1>
-      <p class="login-subtitle">CRM &amp; Work Management System</p>
+      <h1 class="login-title">
+        Collaboration Zone
+      </h1>
+
+      <p class="login-subtitle">
+        نظام إدارة ومتابعة العمل
+      </p>
 
       <form id="loginForm">
 
         <div class="field">
-          <label for="username">اسم المستخدم</label>
+          <label for="username">
+            اسم المستخدم
+          </label>
+
           <input
             id="username"
             type="text"
+            placeholder="أدخل اسم المستخدم"
             autocomplete="username"
-            placeholder="اسم المستخدم"
             required
-          >
+          />
         </div>
 
         <div class="field">
-          <label for="password">كلمة المرور</label>
+          <label for="password">
+            كلمة المرور
+          </label>
+
           <input
             id="password"
             type="password"
+            placeholder="أدخل كلمة المرور"
             autocomplete="current-password"
-            placeholder="كلمة المرور"
             required
-          >
+          />
         </div>
 
-        <button type="submit" class="primary-btn">
+        <button
+          type="submit"
+          class="primary-btn"
+        >
           تسجيل الدخول
         </button>
 
-        <div id="loginErr" class="error hidden"></div>
+        <div
+          id="loginErr"
+          class="error hidden"
+        ></div>
 
       </form>
+
     </div>
   </section>
 
 
-  <!-- APP -->
-  <!-- مهم: شلنا hidden من هنا -->
-  <section id="app" style="display: block;">
+  <!-- =========================
+       APPLICATION
+  ========================== -->
+
+  <section id="app">
 
     <div class="app-layout">
 
-      <!-- SIDEBAR -->
+      <!-- =========================
+           SIDEBAR
+      ========================== -->
+
       <aside class="sidebar">
 
         <div class="sidebar-brand">
-          <img src="/logo.png" alt="Collaboration Zone">
-
-          <h2>Collaboration Zone</h2>
-          <p>CRM System</p>
+          <img
+            src="/logo.png"
+            alt="Collaboration Zone"
+          />
         </div>
 
         <nav class="nav">
 
-          <button data-page="dashboard" class="active">
+          <button
+            type="button"
+            data-page="dashboard"
+            class="active"
+          >
             🏠 الرئيسية
           </button>
 
-          <button data-page="reports">
+          <button
+            type="button"
+            data-page="reports"
+          >
             📋 التقارير
           </button>
 
-          <button data-page="tasks">
+          <button
+            type="button"
+            data-page="tasks"
+          >
             ✅ المهام
           </button>
 
-          <button data-page="clients">
+          <button
+            type="button"
+            data-page="clients"
+          >
             👥 جهات الاتصال
           </button>
 
-          <button data-page="attendance">
+          <button
+            type="button"
+            data-page="attendance"
+          >
             🕐 الحضور والانصراف
           </button>
 
-          <button data-page="users" class="adminOnly">
-            👤 الموظفين
-          </button>
-
-          <button id="logout" class="logout-btn">
-            🚪 تسجيل خروج
+          <button
+            type="button"
+            data-page="users"
+            class="adminOnly"
+          >
+            👤 المستخدمين
           </button>
 
         </nav>
 
+        <button
+          id="logout"
+          type="button"
+          class="logout-btn"
+        >
+          تسجيل الخروج
+        </button>
+
       </aside>
 
 
-      <!-- MAIN -->
+      <!-- =========================
+           MAIN
+      ========================== -->
+
       <main class="main">
 
         <!-- TOP BAR -->
+
         <header class="topbar">
 
           <div class="topbar-title" id="pageTitle">
-            لوحة التحكم
+            الرئيسية
           </div>
 
           <div class="topbar-actions">
 
-            <span id="who" class="who">
-              مرحباً System Admin
-            </span>
-
-            <button id="langBtn" class="top-btn" type="button">
-              English
-            </button>
+            <div
+              id="who"
+              class="who"
+            ></div>
 
             <button
-              class="top-btn"
+              id="langBtn"
               type="button"
-              onclick="showReportForm()"
+              class="top-btn"
             >
-              + ريبورت جديد
+              EN
             </button>
 
           </div>
@@ -147,41 +207,98 @@
 
 
         <!-- CONTENT -->
+
         <div class="content">
 
 
-          <!-- DASHBOARD -->
-          <section id="dashboard" class="page">
+          <!-- =========================
+               DASHBOARD
+          ========================== -->
+
+          <section
+            id="dashboard"
+            class="page"
+          >
 
             <div class="page-head">
-
               <div>
                 <h2>لوحة التحكم</h2>
-                <p>ملخص سريع لحالة العمل داخل الشركة</p>
+                <p class="muted">
+                  نظرة سريعة على حالة العمل
+                </p>
               </div>
-
             </div>
+
 
             <div class="grid">
 
               <div class="stat">
-                <div class="stat-label">التقارير</div>
-                <div class="stat-value" id="sReports">0</div>
+                <div class="stat-label">
+                  إجمالي التقارير
+                </div>
+
+                <div
+                  id="statReports"
+                  class="stat-value"
+                >
+                  0
+                </div>
               </div>
 
-              <div class="stat">
-                <div class="stat-label">التقارير المعلقة</div>
-                <div class="stat-value" id="sPending">0</div>
-              </div>
 
               <div class="stat">
-                <div class="stat-label">المهام</div>
-                <div class="stat-value" id="sTasks">0</div>
+                <div class="stat-label">
+                  إجمالي المهام
+                </div>
+
+                <div
+                  id="statTasks"
+                  class="stat-value"
+                >
+                  0
+                </div>
               </div>
 
+
               <div class="stat">
-                <div class="stat-label">الموظفين</div>
-                <div class="stat-value" id="sEmployees">1</div>
+                <div class="stat-label">
+                  جهات الاتصال
+                </div>
+
+                <div
+                  id="statClients"
+                  class="stat-value"
+                >
+                  0
+                </div>
+              </div>
+
+
+              <div class="stat">
+                <div class="stat-label">
+                  المستخدمين
+                </div>
+
+                <div
+                  id="statUsers"
+                  class="stat-value"
+                >
+                  0
+                </div>
+              </div>
+
+            </div>
+
+
+            <div class="panel">
+
+              <div class="panel-title">
+                ملخص العمل
+              </div>
+
+              <div class="muted">
+                من هنا يمكنك متابعة التقارير والمهام
+                وجهات الاتصال والحضور.
               </div>
 
             </div>
@@ -189,21 +306,31 @@
           </section>
 
 
-          <!-- REPORTS -->
-          <section id="reports" class="page hidden">
+          <!-- =========================
+               REPORTS
+          ========================== -->
+
+          <section
+            id="reports"
+            class="page hidden"
+          >
 
             <div class="page-head">
 
               <div>
                 <h2>التقارير</h2>
-                <p>إدارة تقارير العمل والزيارات</p>
+
+                <p class="muted">
+                  تسجيل ومتابعة تقارير العمل
+                </p>
               </div>
 
               <div class="actions">
 
                 <button
-                  class="btn btn-green"
-                  onclick="showReportForm()"
+                  id="reportAdd"
+                  type="button"
+                  class="btn"
                 >
                   + إضافة تقرير
                 </button>
@@ -213,64 +340,78 @@
             </div>
 
 
-            <div id="reportAdd" class="panel hidden">
+            <div
+              id="reportForm"
+              class="panel hidden"
+            >
 
               <div class="panel-title">
                 إضافة تقرير جديد
               </div>
 
-              <form id="reportForm">
+              <div class="form-grid">
 
-                <div class="form-grid">
+                <div class="field">
+                  <label for="reportTitle">
+                    عنوان التقرير
+                  </label>
 
-                  <div class="field">
-                    <label>العنوان</label>
-                    <input
-                      id="reportTitle"
-                      type="text"
-                      placeholder="عنوان التقرير"
-                    >
-                  </div>
+                  <input
+                    id="reportTitle"
+                    type="text"
+                    placeholder="عنوان التقرير"
+                  />
+                </div>
 
-                  <div class="field">
-                    <label>العميل</label>
-                    <input
-                      id="reportClient"
-                      type="text"
-                      placeholder="اسم العميل"
-                    >
-                  </div>
 
-                  <div class="field form-full">
-                    <label>التفاصيل</label>
-                    <textarea
-                      id="reportDetails"
-                      placeholder="اكتب تفاصيل التقرير..."
-                    ></textarea>
-                  </div>
+                <div class="field">
+                  <label for="reportClient">
+                    العميل
+                  </label>
 
-                  <div class="actions form-full">
+                  <input
+                    id="reportClient"
+                    type="text"
+                    placeholder="اسم العميل"
+                  />
+                </div>
 
-                    <button
-                      type="submit"
-                      class="btn btn-green"
-                    >
-                      حفظ التقرير
-                    </button>
 
-                    <button
-                      type="button"
-                      class="btn btn-light"
-                      onclick="showReportForm(false)"
-                    >
-                      إلغاء
-                    </button>
+                <div class="field form-full">
 
-                  </div>
+                  <label for="reportDetails">
+                    تفاصيل التقرير
+                  </label>
+
+                  <textarea
+                    id="reportDetails"
+                    placeholder="اكتب تفاصيل التقرير..."
+                  ></textarea>
 
                 </div>
 
-              </form>
+              </div>
+
+
+              <div class="actions">
+
+                <button
+                  type="button"
+                  id="reportSave"
+                  class="btn btn-green"
+                >
+                  حفظ التقرير
+                </button>
+
+                <button
+                  type="button"
+                  id="reportCancel"
+                  class="btn btn-light"
+                >
+                  إلغاء
+                </button>
+
+              </div>
 
             </div>
 
@@ -278,7 +419,7 @@
             <div class="panel">
 
               <div class="panel-title">
-                قائمة التقارير
+                التقارير المسجلة
               </div>
 
               <div class="table-wrap">
@@ -287,11 +428,11 @@
 
                   <thead>
                     <tr>
-                      <th>التاريخ</th>
-                      <th>الموظف</th>
                       <th>العنوان</th>
                       <th>العميل</th>
-                      <th>الحالة</th>
+                      <th>المستخدم</th>
+                      <th>التاريخ</th>
+                      <th>التفاصيل</th>
                     </tr>
                   </thead>
 
@@ -307,75 +448,112 @@
           </section>
 
 
-          <!-- TASKS -->
-          <section id="tasks" class="page hidden">
+          <!-- =========================
+               TASKS
+          ========================== -->
+
+          <section
+            id="tasks"
+            class="page hidden"
+          >
 
             <div class="page-head">
 
               <div>
                 <h2>المهام</h2>
-                <p>متابعة وتوزيع مهام الموظفين</p>
+
+                <p class="muted">
+                  إدارة ومتابعة مهام فريق العمل
+                </p>
               </div>
+
+              <button
+                id="taskAdd"
+                type="button"
+                class="btn"
+              >
+                + إضافة مهمة
+              </button>
 
             </div>
 
 
-            <div class="panel">
+            <div
+              id="taskForm"
+              class="panel hidden"
+            >
 
               <div class="panel-title">
-                إضافة مهمة
+                إضافة مهمة جديدة
               </div>
 
-              <form id="taskAdd">
+              <div class="form-grid">
 
-                <div class="form-grid">
+                <div class="field">
 
-                  <div class="field">
-                    <label>عنوان المهمة</label>
-                    <input
-                      id="taskTitle"
-                      type="text"
-                      placeholder="عنوان المهمة"
-                    >
-                  </div>
+                  <label for="taskTitle">
+                    عنوان المهمة
+                  </label>
 
-                  <div class="field">
-
-                    <label>الموظف</label>
-
-                    <select id="taskUser">
-                      <option value="1">
-                        System Admin
-                      </option>
-                    </select>
-
-                  </div>
-
-                  <div class="field form-full">
-
-                    <label>تفاصيل المهمة</label>
-
-                    <textarea
-                      id="taskDetails"
-                      placeholder="تفاصيل المهمة..."
-                    ></textarea>
-
-                  </div>
-
-                  <div class="actions form-full">
-
-                    <button
-                      type="submit"
-                      class="btn btn-green"
-                    >
-                      إضافة المهمة
-                    </button>
-
-                  </div>
+                  <input
+                    id="taskTitle"
+                    type="text"
+                    placeholder="عنوان المهمة"
+                  />
 
                 </div>
 
-              </form>
+
+                <div class="field">
+
+                  <label for="taskUser">
+                    الموظف
+                  </label>
+
+                  <select id="taskUser">
+                    <option value="">
+                      اختر الموظف
+                    </option>
+                  </select>
+
+                </div>
+
+
+                <div class="field form-full">
+
+                  <label for="taskDetails">
+                    تفاصيل المهمة
+                  </label>
+
+                  <textarea
+                    id="taskDetails"
+                    placeholder="اكتب تفاصيل المهمة..."
+                  ></textarea>
+
+                </div>
+
+              </div>
+
+
+              <div class="actions">
+
+                <button
+                  type="button"
+                  id="taskSave"
+                  class="btn btn-green"
+                >
+                  حفظ المهمة
+                </button>
+
+                <button
+                  type="button"
+                  id="taskCancel"
+                  class="btn btn-light"
+                >
+                  إلغاء
+                </button>
+
+              </div>
 
             </div>
 
@@ -383,7 +561,7 @@
             <div class="panel">
 
               <div class="panel-title">
-                المهام الحالية
+                المهام
               </div>
 
               <div class="table-wrap">
@@ -391,13 +569,15 @@
                 <table class="table">
 
                   <thead>
+
                     <tr>
                       <th>المهمة</th>
                       <th>الموظف</th>
                       <th>التفاصيل</th>
                       <th>الحالة</th>
-                      <th>الإجراء</th>
+                      <th>التاريخ</th>
                     </tr>
+
                   </thead>
 
                   <tbody id="tasksTable">
@@ -412,95 +592,132 @@
           </section>
 
 
-          <!-- CLIENTS -->
-          <section id="clients" class="page hidden">
+          <!-- =========================
+               CLIENTS
+          ========================== -->
+
+          <section
+            id="clients"
+            class="page hidden"
+          >
 
             <div class="page-head">
 
               <div>
-                <h2>جهات الاتصال</h2>
-                <p>إدارة العملاء وجهات الاتصال</p>
+
+                <h2>
+                  جهات الاتصال
+                </h2>
+
+                <p class="muted">
+                  إدارة العملاء وجهات الاتصال
+                </p>
+
               </div>
+
+              <button
+                id="clientAdd"
+                type="button"
+                class="btn"
+              >
+                + إضافة جهة اتصال
+              </button>
 
             </div>
 
 
-            <div class="panel">
+            <div
+              id="clientForm"
+              class="panel hidden"
+            >
 
               <div class="panel-title">
                 إضافة جهة اتصال
               </div>
 
-              <form id="clientAdd">
+              <div class="form-grid">
 
-                <div class="form-grid">
+                <div class="field">
 
-                  <div class="field">
+                  <label for="clientName">
+                    الاسم
+                  </label>
 
-                    <label>اسم العميل</label>
-
-                    <input
-                      id="clientName"
-                      type="text"
-                      placeholder="اسم العميل"
-                    >
-
-                  </div>
-
-
-                  <div class="field">
-
-                    <label>جهة الاتصال</label>
-
-                    <input
-                      id="clientContact"
-                      type="text"
-                      placeholder="اسم جهة الاتصال"
-                    >
-
-                  </div>
-
-
-                  <div class="field">
-
-                    <label>الهاتف</label>
-
-                    <input
-                      id="clientPhone"
-                      type="text"
-                      placeholder="رقم الهاتف"
-                    >
-
-                  </div>
-
-
-                  <div class="field">
-
-                    <label>ملاحظات</label>
-
-                    <input
-                      id="clientNotes"
-                      type="text"
-                      placeholder="ملاحظات"
-                    >
-
-                  </div>
-
-
-                  <div class="actions form-full">
-
-                    <button
-                      type="submit"
-                      class="btn btn-green"
-                    >
-                      إضافة العميل
-                    </button>
-
-                  </div>
+                  <input
+                    id="clientName"
+                    type="text"
+                    placeholder="اسم العميل"
+                  />
 
                 </div>
 
-              </form>
+
+                <div class="field">
+
+                  <label for="clientContact">
+                    جهة الاتصال
+                  </label>
+
+                  <input
+                    id="clientContact"
+                    type="text"
+                    placeholder="المسمى أو جهة الاتصال"
+                  />
+
+                </div>
+
+
+                <div class="field">
+
+                  <label for="clientPhone">
+                    الهاتف
+                  </label>
+
+                  <input
+                    id="clientPhone"
+                    type="text"
+                    placeholder="رقم الهاتف"
+                  />
+
+                </div>
+
+
+                <div class="field">
+
+                  <label for="clientNotes">
+                    ملاحظات
+                  </label>
+
+                  <input
+                    id="clientNotes"
+                    type="text"
+                    placeholder="ملاحظات"
+                  />
+
+                </div>
+
+              </div>
+
+
+              <div class="actions">
+
+                <button
+                  type="button"
+                  id="clientSave"
+                  class="btn btn-green"
+                >
+                  حفظ
+                </button>
+
+                <button
+                  type="button"
+                  id="clientCancel"
+                  class="btn btn-light"
+                >
+                  إلغاء
+                </button>
+
+              </div>
 
             </div>
 
@@ -508,7 +725,7 @@
             <div class="panel">
 
               <div class="panel-title">
-                قائمة جهات الاتصال
+                جهات الاتصال
               </div>
 
               <div class="table-wrap">
@@ -518,10 +735,12 @@
                   <thead>
 
                     <tr>
-                      <th>العميل</th>
+                      <th>الاسم</th>
                       <th>جهة الاتصال</th>
                       <th>الهاتف</th>
-                      <th>الملاحظات</th>
+                      <th>ملاحظات</th>
+                      <th>التاريخ</th>
+                      <th>إجراءات</th>
                     </tr>
 
                   </thead>
@@ -538,8 +757,14 @@
           </section>
 
 
-          <!-- ATTENDANCE -->
-          <section id="attendance" class="page hidden">
+          <!-- =========================
+               ATTENDANCE
+          ========================== -->
+
+          <section
+            id="attendance"
+            class="page hidden"
+          >
 
             <div class="page-head">
 
@@ -549,8 +774,8 @@
                   الحضور والانصراف
                 </h2>
 
-                <p>
-                  تسجيل ومتابعة حضور وانصراف الموظفين
+                <p class="muted">
+                  تسجيل ومتابعة حضور الموظفين
                 </p>
 
               </div>
@@ -558,45 +783,72 @@
             </div>
 
 
-            <!-- Employee Attendance -->
-
             <div class="attendance-main">
 
               <div class="attendance-card">
 
+                <div class="panel-title">
+                  حضور اليوم
+                </div>
+
                 <div
                   id="attendanceToday"
-                  class="attendanceStatus"
-                >
+                  class="muted"
+                ></div>
+
+
+                <div id="attendanceStatus">
+                  لم يتم تسجيل الحضور بعد
                 </div>
+
 
                 <div
                   id="attendanceActions"
                   class="attendanceActions"
-                ></div>
+                >
+
+                  <button
+                    id="checkInBtn"
+                    type="button"
+                    class="btn btn-green"
+                  >
+                    تسجيل الحضور
+                  </button>
+
+                  <button
+                    id="checkOutBtn"
+                    type="button"
+                    class="btn btn-blue"
+                  >
+                    تسجيل الانصراف
+                  </button>
+
+                </div>
 
               </div>
 
 
               <div class="attendance-side">
 
-                <h3>
-                  نظام الحضور
-                </h3>
-
-                <p>
-                  سجل حضورك عند بداية العمل،
-                  وسجل الانصراف عند انتهاء يوم العمل.
-                </p>
+                <div class="panel-title">
+                  معلومات اليوم
+                </div>
 
                 <div class="date-box">
 
-                  🕐 التوقيت المستخدم: السعودية
+                  <strong id="attendanceDateDisplay">
+                    -
+                  </strong>
 
-                  <br>
+                  <span class="muted">
+                    تاريخ اليوم
+                  </span>
 
-                  Asia/Riyadh
+                </div>
 
+                <div class="muted">
+                  يتم تسجيل الحضور والانصراف
+                  حسب توقيت المملكة العربية السعودية.
                 </div>
 
               </div>
@@ -604,7 +856,7 @@
             </div>
 
 
-            <!-- Admin Attendance -->
+            <!-- ADMIN ATTENDANCE -->
 
             <div
               id="attendanceAdminPanel"
@@ -615,13 +867,12 @@
 
                 <div>
 
-                  <h2 id="attendanceAdminTitle">
+                  <div
+                    id="attendanceAdminTitle"
+                    class="panel-title"
+                  >
                     سجل حضور الموظفين
-                  </h2>
-
-                  <p>
-                    متابعة حضور وانصراف فريق العمل
-                  </p>
+                  </div>
 
                 </div>
 
@@ -632,24 +883,23 @@
 
                 <div class="field">
 
-                  <label id="attendanceFilterLabel">
-                    عرض التاريخ
+                  <label for="attendanceDate">
+                    التاريخ
                   </label>
 
                   <input
                     id="attendanceDate"
                     type="date"
-                  >
+                  />
 
                 </div>
-
 
                 <button
                   id="attendanceExport"
                   type="button"
-                  class="btn btn-blue"
+                  class="btn btn-green"
                 >
-                  ⬇ تصدير الحضور
+                  تصدير Excel
                 </button>
 
               </div>
@@ -666,7 +916,6 @@
                       <th>التاريخ</th>
                       <th>الحضور</th>
                       <th>الانصراف</th>
-                      <th>الحالة</th>
                     </tr>
 
                   </thead>
@@ -683,17 +932,25 @@
           </section>
 
 
-          <!-- USERS -->
-          <section id="users" class="page hidden">
+          <!-- =========================
+               USERS
+          ========================== -->
+
+          <section
+            id="users"
+            class="page hidden"
+          >
 
             <div class="page-head">
 
               <div>
 
-                <h2>الموظفين</h2>
+                <h2>
+                  المستخدمين
+                </h2>
 
-                <p>
-                  إدارة حسابات وصلاحيات الموظفين
+                <p class="muted">
+                  إدارة حسابات الموظفين والصلاحيات
                 </p>
 
               </div>
@@ -701,92 +958,100 @@
             </div>
 
 
-            <div class="panel">
+            <div
+              id="userAdd"
+              class="panel"
+            >
 
               <div class="panel-title">
-                إضافة موظف
+                إضافة مستخدم جديد
               </div>
 
-              <form id="userAdd">
+              <div class="form-grid">
 
-                <div class="form-grid">
+                <div class="field">
 
-                  <div class="field">
+                  <label for="newUsername">
+                    اسم المستخدم
+                  </label>
 
-                    <label>اسم المستخدم</label>
-
-                    <input
-                      id="newUsername"
-                      type="text"
-                      placeholder="اسم المستخدم"
-                    >
-
-                  </div>
-
-
-                  <div class="field">
-
-                    <label>كلمة المرور</label>
-
-                    <input
-                      id="newPassword"
-                      type="password"
-                      placeholder="كلمة المرور"
-                    >
-
-                  </div>
-
-
-                  <div class="field">
-
-                    <label>اسم الموظف</label>
-
-                    <input
-                      id="newName"
-                      type="text"
-                      placeholder="اسم الموظف"
-                    >
-
-                  </div>
-
-
-                  <div class="field">
-
-                    <label>الصلاحية</label>
-
-                    <select id="newRole">
-
-                      <option value="employee">
-                        موظف
-                      </option>
-
-                      <option value="manager">
-                        مدير
-                      </option>
-
-                      <option value="admin">
-                        Admin
-                      </option>
-
-                    </select>
-
-                  </div>
-
-
-                  <div class="actions form-full">
-
-                    <button
-                      type="submit"
-                      class="btn btn-green"
-                    >
-                      إضافة الموظف
-                    </button>
-
-                  </div>
+                  <input
+                    id="newUsername"
+                    type="text"
+                    placeholder="Username"
+                  />
 
                 </div>
 
-              </form>
+
+                <div class="field">
+
+                  <label for="newPassword">
+                    كلمة المرور
+                  </label>
+
+                  <input
+                    id="newPassword"
+                    type="password"
+                    placeholder="Password"
+                  />
+
+                </div>
+
+
+                <div class="field">
+
+                  <label for="newName">
+                    الاسم
+                  </label>
+
+                  <input
+                    id="newName"
+                    type="text"
+                    placeholder="اسم الموظف"
+                  />
+
+                </div>
+
+
+                <div class="field">
+
+                  <label for="newRole">
+                    الصلاحية
+                  </label>
+
+                  <select id="newRole">
+
+                    <option value="employee">
+                      موظف
+                    </option>
+
+                    <option value="manager">
+                      مدير
+                    </option>
+
+                    <option value="admin">
+                      مدير النظام
+                    </option>
+
+                  </select>
+
+                </div>
+
+              </div>
+
+
+              <div class="actions">
+
+                <button
+                  id="userSave"
+                  type="button"
+                  class="btn btn-green"
+                >
+                  إضافة المستخدم
+                </button>
+
+              </div>
 
             </div>
 
@@ -794,7 +1059,7 @@
             <div class="panel">
 
               <div class="panel-title">
-                قائمة الموظفين
+                المستخدمين الحاليين
               </div>
 
               <div class="table-wrap">
@@ -804,11 +1069,11 @@
                   <thead>
 
                     <tr>
-                      <th>الاسم</th>
                       <th>اسم المستخدم</th>
+                      <th>الاسم</th>
                       <th>الصلاحية</th>
                       <th>الحالة</th>
-                      <th>الإجراء</th>
+                      <th>إجراءات</th>
                     </tr>
 
                   </thead>
@@ -834,7 +1099,10 @@
   </section>
 
 
-  <!-- APP JS -->
+  <!-- =========================
+       JAVASCRIPT
+  ========================== -->
+
   <script src="/app.js"></script>
 
 </body>
