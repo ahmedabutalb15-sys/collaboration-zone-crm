@@ -1,841 +1,31 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
-  <meta name="theme-color" content="#0b4565" />
-  <meta name="description" content="Collaboration Zone CRM" />
-
-  <link rel="manifest" href="/manifest.json" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <title>Collaboration Zone CRM</title>
 
+  <link rel="manifest" href="/manifest.json">
+  <link rel="icon" href="/logo.png">
+
   <style>
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
-
-    body {
-      font-family: Arial, Tahoma, sans-serif;
-      background: #f4f7f9;
-      color: #18313f;
-      min-height: 100vh;
-    }
-
-    button,
-    input,
-    textarea,
-    select {
-      font-family: inherit;
-    }
-
-    button {
-      cursor: pointer;
-    }
-
-    .hidden {
+    [hidden] {
       display: none !important;
-    }
-
-    /* =========================
-       LOGIN
-    ========================= */
-
-    #login {
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 20px;
-      background:
-        linear-gradient(135deg, #08354e 0%, #0b4565 50%, #238329 100%);
-    }
-
-    .login-card {
-      width: 100%;
-      max-width: 420px;
-      background: white;
-      border-radius: 22px;
-      padding: 35px;
-      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.18);
-    }
-
-    .login-logo {
-      width: 100%;
-      max-width: 210px;
-      height: auto;
-      display: block;
-      margin: 0 auto 25px;
-      object-fit: contain;
-    }
-
-    .login-title {
-      text-align: center;
-      color: #0b4565;
-      margin-bottom: 8px;
-      font-size: 26px;
-    }
-
-    .login-subtitle {
-      text-align: center;
-      color: #71808a;
-      margin-bottom: 25px;
-      font-size: 14px;
-    }
-
-    .field {
-      margin-bottom: 16px;
-    }
-
-    .field label {
-      display: block;
-      margin-bottom: 7px;
-      font-weight: 700;
-      color: #284653;
-      font-size: 14px;
-    }
-
-    .field input,
-    .field textarea,
-    .field select {
-      width: 100%;
-      border: 1px solid #d7e0e5;
-      border-radius: 10px;
-      padding: 12px 13px;
-      background: #fff;
-      outline: none;
-      transition: 0.2s;
-      font-size: 14px;
-    }
-
-    .field textarea {
-      min-height: 100px;
-      resize: vertical;
-    }
-
-    .field input:focus,
-    .field textarea:focus,
-    .field select:focus {
-      border-color: #39a935;
-      box-shadow: 0 0 0 3px rgba(57, 169, 53, 0.1);
-    }
-
-    .primary-btn {
-      width: 100%;
-      border: 0;
-      border-radius: 10px;
-      padding: 13px;
-      background: #39a935;
-      color: white;
-      font-weight: 700;
-      font-size: 15px;
-      transition: 0.2s;
-    }
-
-    .primary-btn:hover {
-      background: #238329;
-      transform: translateY(-1px);
-    }
-
-    .error {
-      color: #c62828;
-      background: #fff0f0;
-      border: 1px solid #ffd0d0;
-      padding: 10px;
-      border-radius: 8px;
-      margin-top: 12px;
-      font-size: 13px;
-      text-align: center;
-    }
-
-    /* =========================
-       APP LAYOUT
-    ========================= */
-
-    #app {
-      min-height: 100vh;
-    }
-
-    .app-layout {
-      min-height: 100vh;
-      display: flex;
-    }
-
-    .sidebar {
-      width: 245px;
-      background: #08354e;
-      color: white;
-      padding: 22px 15px;
-      position: fixed;
-      top: 0;
-      bottom: 0;
-      right: 0;
-      z-index: 50;
-      overflow-y: auto;
-    }
-
-    .sidebar-brand {
-      text-align: center;
-      padding: 8px 10px 25px;
-      border-bottom: 1px solid rgba(255,255,255,0.12);
-      margin-bottom: 18px;
-    }
-
-    .sidebar-brand img {
-      width: 145px;
-      max-width: 100%;
-      max-height: 80px;
-      object-fit: contain;
-      background: white;
-      border-radius: 10px;
-      padding: 8px;
-    }
-
-    .sidebar-brand h2 {
-      margin-top: 12px;
-      font-size: 17px;
-    }
-
-    .sidebar-brand p {
-      margin-top: 5px;
-      color: rgba(255,255,255,0.65);
-      font-size: 11px;
-    }
-
-    .nav {
-      display: flex;
-      flex-direction: column;
-      gap: 7px;
-    }
-
-    .nav button {
-      width: 100%;
-      border: 0;
-      background: transparent;
-      color: rgba(255,255,255,0.86);
-      padding: 12px 14px;
-      border-radius: 10px;
-      text-align: right;
-      font-size: 14px;
-      transition: 0.2s;
-    }
-
-    .nav button:hover {
-      background: rgba(255,255,255,0.1);
-      color: white;
-    }
-
-    .nav button.active {
-      background: #39a935;
-      color: white;
-      font-weight: 700;
-    }
-
-    .nav .logout-btn {
-      margin-top: 15px;
-      background: rgba(242, 140, 0, 0.14);
-      color: #ffd49c;
-    }
-
-    .nav .logout-btn:hover {
-      background: #f28c00;
-      color: white;
-    }
-
-    .main {
-      flex: 1;
-      margin-right: 245px;
-      min-width: 0;
-    }
-
-    .topbar {
-      height: 70px;
-      background: white;
-      border-bottom: 1px solid #e4eaee;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 15px;
-      padding: 0 25px;
-      position: sticky;
-      top: 0;
-      z-index: 30;
-    }
-
-    .topbar-title {
-      color: #0b4565;
-      font-size: 22px;
-      font-weight: 800;
-    }
-
-    .topbar-actions {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .who {
-      color: #6b7c86;
-      font-size: 13px;
-    }
-
-    .top-btn {
-      border: 1px solid #dbe4e8;
-      background: white;
-      color: #0b4565;
-      padding: 8px 12px;
-      border-radius: 8px;
-      font-weight: 700;
-      font-size: 12px;
-    }
-
-    .top-btn:hover {
-      border-color: #39a935;
-      color: #238329;
-    }
-
-    .content {
-      padding: 25px;
-      max-width: 1600px;
-      margin: auto;
-    }
-
-    /* =========================
-       GENERAL
-    ========================= */
-
-    .page {
-      animation: pageIn 0.2s ease;
-    }
-
-    @keyframes pageIn {
-      from {
-        opacity: 0;
-        transform: translateY(4px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-
-    .page-head {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 15px;
-      margin-bottom: 20px;
-    }
-
-    .page-head h2 {
-      color: #0b4565;
-      font-size: 22px;
-    }
-
-    .page-head p {
-      color: #778992;
-      margin-top: 5px;
-      font-size: 13px;
-    }
-
-    .panel {
-      background: white;
-      border-radius: 15px;
-      border: 1px solid #e2e9ed;
-      padding: 20px;
-      margin-bottom: 20px;
-      box-shadow: 0 4px 18px rgba(8, 53, 78, 0.04);
-    }
-
-    .panel-title {
-      color: #0b4565;
-      font-size: 17px;
-      font-weight: 800;
-      margin-bottom: 16px;
-    }
-
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(4, minmax(0, 1fr));
-      gap: 15px;
-    }
-
-    .stat {
-      background: white;
-      border: 1px solid #e1e9ed;
-      border-radius: 15px;
-      padding: 20px;
-      box-shadow: 0 4px 18px rgba(8, 53, 78, 0.04);
-    }
-
-    .stat-label {
-      color: #71818b;
-      font-size: 13px;
-      margin-bottom: 8px;
-    }
-
-    .stat-value {
-      color: #0b4565;
-      font-size: 28px;
-      font-weight: 800;
-    }
-
-    .actions {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-    }
-
-    .btn {
-      border: 0;
-      border-radius: 9px;
-      padding: 10px 15px;
-      font-weight: 700;
-      font-size: 13px;
-      transition: 0.2s;
-    }
-
-    .btn-green {
-      background: #39a935;
-      color: white;
-    }
-
-    .btn-green:hover {
-      background: #238329;
-    }
-
-    .btn-blue {
-      background: #0b4565;
-      color: white;
-    }
-
-    .btn-blue:hover {
-      background: #08354e;
-    }
-
-    .btn-orange {
-      background: #f28c00;
-      color: white;
-    }
-
-    .btn-orange:hover {
-      background: #d97800;
-    }
-
-    .btn-light {
-      background: #eef3f5;
-      color: #294654;
-    }
-
-    .btn-light:hover {
-      background: #e0e8eb;
-    }
-
-    .form-grid {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 15px;
-    }
-
-    .form-full {
-      grid-column: 1 / -1;
-    }
-
-    /* =========================
-       TABLE
-    ========================= */
-
-    .table-wrap {
-      width: 100%;
-      overflow-x: auto;
-      border: 1px solid #e1e8ec;
-      border-radius: 10px;
-    }
-
-    .table {
-      width: 100%;
-      border-collapse: collapse;
-      min-width: 700px;
-      background: white;
-    }
-
-    .table th {
-      background: #f4f7f9;
-      color: #34515f;
-      font-size: 12px;
-      padding: 12px;
-      text-align: right;
-      white-space: nowrap;
-    }
-
-    .table td {
-      padding: 12px;
-      border-top: 1px solid #edf1f3;
-      color: #425963;
-      font-size: 13px;
-      vertical-align: middle;
-    }
-
-    .table tr:hover td {
-      background: #fafcfc;
-    }
-
-    .badge {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      padding: 5px 9px;
-      border-radius: 20px;
-      font-size: 11px;
-      font-weight: 700;
-    }
-
-    .approved {
-      color: #237a2a;
-      background: #e8f6e7;
-    }
-
-    .rejected {
-      color: #a62b2b;
-      background: #fdeaea;
-    }
-
-    .pending {
-      color: #9a6100;
-      background: #fff4d9;
-    }
-
-    /* =========================
-       ATTENDANCE
-    ========================= */
-
-    .attendance-main {
-      display: grid;
-      grid-template-columns: minmax(0, 1fr) minmax(280px, 380px);
-      gap: 20px;
-      align-items: stretch;
-    }
-
-    .attendance-card {
-      background: white;
-      border: 1px solid #e1e9ed;
-      border-radius: 18px;
-      padding: 25px;
-      box-shadow: 0 5px 22px rgba(8, 53, 78, 0.05);
-    }
-
-    .attendanceStatus {
-      min-height: 220px;
-      display: flex;
-      align-items: center;
-      gap: 22px;
-    }
-
-    .attendanceIcon {
-      width: 95px;
-      height: 95px;
-      border-radius: 50%;
-      background: #e9f6e8;
-      color: #39a935;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 42px;
-      flex-shrink: 0;
-    }
-
-    .attendanceInfo {
-      flex: 1;
-    }
-
-    .attendanceInfo h3 {
-      color: #0b4565;
-      font-size: 21px;
-      margin-bottom: 8px;
-    }
-
-    .attendanceInfo p {
-      color: #71818b;
-      font-size: 13px;
-      line-height: 1.7;
-    }
-
-    .attendanceHours {
-      margin-top: 13px;
-      display: inline-flex;
-      padding: 8px 12px;
-      background: #f2f6f8;
-      color: #0b4565;
-      border-radius: 8px;
-      font-weight: 700;
-      font-size: 13px;
-    }
-
-    .attendanceActions {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-      margin-top: 20px;
-    }
-
-    .attendanceBtn {
-      min-width: 145px;
-      border: 0;
-      border-radius: 10px;
-      padding: 13px 18px;
-      font-weight: 800;
-      font-size: 14px;
-      transition: 0.2s;
-    }
-
-    .attendanceBtn.checkIn {
-      background: #39a935;
-      color: white;
-    }
-
-    .attendanceBtn.checkIn:hover {
-      background: #238329;
-    }
-
-    .attendanceBtn.checkOut {
-      background: #f28c00;
-      color: white;
-    }
-
-    .attendanceBtn.checkOut:hover {
-      background: #d97800;
-    }
-
-    .attendanceBtn:disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
-      transform: none;
-    }
-
-    .attendance-side {
-      background: linear-gradient(145deg, #08354e, #0b4565);
-      color: white;
-      border-radius: 18px;
-      padding: 25px;
-      min-height: 220px;
-    }
-
-    .attendance-side h3 {
-      font-size: 18px;
-      margin-bottom: 12px;
-    }
-
-    .attendance-side p {
-      color: rgba(255,255,255,0.75);
-      font-size: 13px;
-      line-height: 1.8;
-    }
-
-    .attendance-side .date-box {
-      margin-top: 20px;
-      padding: 13px;
-      background: rgba(255,255,255,0.09);
-      border-radius: 10px;
-      font-size: 13px;
-    }
-
-    .attendance-filter {
-      display: flex;
-      align-items: end;
-      gap: 10px;
-      flex-wrap: wrap;
-      margin-bottom: 18px;
-    }
-
-    .attendance-filter .field {
-      margin: 0;
-      min-width: 190px;
-    }
-
-    .attendance-filter .field label {
-      color: #5d707b;
-    }
-
-    .attendance-filter input[type="date"] {
-      min-height: 40px;
-    }
-
-    /* =========================
-       EMPTY / LOADING
-    ========================= */
-
-    .empty {
-      text-align: center;
-      padding: 35px 20px;
-      color: #7c8b93;
-      font-size: 14px;
-    }
-
-    .loading {
-      text-align: center;
-      padding: 25px;
-      color: #71818b;
-      font-size: 13px;
-    }
-
-    /* =========================
-       RESPONSIVE
-    ========================= */
-
-    @media (max-width: 1100px) {
-      .grid {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-      }
-
-      .attendance-main {
-        grid-template-columns: 1fr;
-      }
-    }
-
-    @media (max-width: 800px) {
-      .sidebar {
-        position: fixed;
-        top: auto;
-        bottom: 0;
-        right: 0;
-        left: 0;
-        width: 100%;
-        height: auto;
-        padding: 8px;
-        overflow-x: auto;
-        overflow-y: hidden;
-      }
-
-      .sidebar-brand {
-        display: none;
-      }
-
-      .nav {
-        flex-direction: row;
-        gap: 5px;
-        min-width: max-content;
-      }
-
-      .nav button {
-        width: auto;
-        white-space: nowrap;
-        padding: 10px 12px;
-        font-size: 12px;
-        text-align: center;
-      }
-
-      .nav .logout-btn {
-        margin-top: 0;
-      }
-
-      .main {
-        margin-right: 0;
-        padding-bottom: 70px;
-      }
-
-      .topbar {
-        height: 62px;
-        padding: 0 15px;
-      }
-
-      .topbar-title {
-        font-size: 18px;
-      }
-
-      .who {
-        display: none;
-      }
-
-      .content {
-        padding: 15px;
-      }
-
-      .form-grid {
-        grid-template-columns: 1fr;
-      }
-
-      .form-full {
-        grid-column: auto;
-      }
-
-      .attendanceStatus {
-        flex-direction: column;
-        text-align: center;
-      }
-
-      .attendanceActions {
-        justify-content: center;
-      }
-    }
-
-    @media (max-width: 500px) {
-      .grid {
-        grid-template-columns: 1fr;
-      }
-
-      .login-card {
-        padding: 25px 20px;
-      }
-
-      .page-head {
-        align-items: flex-start;
-        flex-direction: column;
-      }
-
-      .panel {
-        padding: 15px;
-      }
-
-      .attendance-card,
-      .attendance-side {
-        padding: 18px;
-      }
-
-      .attendanceIcon {
-        width: 80px;
-        height: 80px;
-        font-size: 34px;
-      }
-
-      .attendanceInfo h3 {
-        font-size: 18px;
-      }
-
-      .attendanceBtn {
-        width: 100%;
-      }
-
-      .topbar-actions {
-        gap: 5px;
-      }
-
-      .top-btn {
-        padding: 7px 9px;
-      }
     }
   </style>
 </head>
 
 <body>
 
-  <!-- =========================
-       LOGIN
-  ========================= -->
-
-  <section id="login">
+  <!-- LOGIN -->
+  <section id="login" style="display: none;">
     <div class="login-card">
 
-      <img
-        src="/logo.png"
-        alt="Collaboration Zone"
-        class="login-logo"
-      />
+      <img src="/logo.png" alt="Collaboration Zone" class="login-logo">
 
       <h1 class="login-title">Collaboration Zone</h1>
-      <p class="login-subtitle">CRM & Work Management System</p>
+      <p class="login-subtitle">CRM &amp; Work Management System</p>
 
       <form id="loginForm">
 
@@ -847,7 +37,7 @@
             autocomplete="username"
             placeholder="اسم المستخدم"
             required
-          />
+          >
         </div>
 
         <div class="field">
@@ -858,7 +48,7 @@
             autocomplete="current-password"
             placeholder="كلمة المرور"
             required
-          />
+          >
         </div>
 
         <button type="submit" class="primary-btn">
@@ -872,11 +62,9 @@
   </section>
 
 
-  <!-- =========================
-       APP
-  ========================= -->
-
-  <section id="app" class="hidden">
+  <!-- APP -->
+  <!-- مهم: شلنا hidden من هنا -->
+  <section id="app" style="display: block;">
 
     <div class="app-layout">
 
@@ -884,10 +72,7 @@
       <aside class="sidebar">
 
         <div class="sidebar-brand">
-          <img
-            src="/logo.png"
-            alt="Collaboration Zone"
-          />
+          <img src="/logo.png" alt="Collaboration Zone">
 
           <h2>Collaboration Zone</h2>
           <p>CRM System</p>
@@ -895,10 +80,7 @@
 
         <nav class="nav">
 
-          <button
-            data-page="dashboard"
-            class="active"
-          >
+          <button data-page="dashboard" class="active">
             🏠 الرئيسية
           </button>
 
@@ -918,18 +100,12 @@
             🕐 الحضور والانصراف
           </button>
 
-          <button
-            data-page="users"
-            class="adminOnly"
-          >
+          <button data-page="users" class="adminOnly">
             👤 الموظفين
           </button>
 
-          <button
-            id="logout"
-            class="logout-btn"
-          >
-            🚪 تسجيل الخروج
+          <button id="logout" class="logout-btn">
+            🚪 تسجيل خروج
           </button>
 
         </nav>
@@ -944,19 +120,17 @@
         <header class="topbar">
 
           <div class="topbar-title" id="pageTitle">
-            الرئيسية
+            لوحة التحكم
           </div>
 
           <div class="topbar-actions">
 
-            <span id="who" class="who"></span>
+            <span id="who" class="who">
+              مرحباً System Admin
+            </span>
 
-            <button
-              id="langBtn"
-              class="top-btn"
-              type="button"
-            >
-              EN
+            <button id="langBtn" class="top-btn" type="button">
+              English
             </button>
 
             <button
@@ -976,62 +150,38 @@
         <div class="content">
 
 
-          <!-- =========================
-               DASHBOARD
-          ========================= -->
-
-          <section
-            id="dashboard"
-            class="page"
-          >
+          <!-- DASHBOARD -->
+          <section id="dashboard" class="page">
 
             <div class="page-head">
+
               <div>
                 <h2>لوحة التحكم</h2>
                 <p>ملخص سريع لحالة العمل داخل الشركة</p>
               </div>
+
             </div>
 
             <div class="grid">
 
               <div class="stat">
                 <div class="stat-label">التقارير</div>
-                <div
-                  class="stat-value"
-                  id="sReports"
-                >
-                  0
-                </div>
+                <div class="stat-value" id="sReports">0</div>
               </div>
 
               <div class="stat">
                 <div class="stat-label">التقارير المعلقة</div>
-                <div
-                  class="stat-value"
-                  id="sPending"
-                >
-                  0
-                </div>
+                <div class="stat-value" id="sPending">0</div>
               </div>
 
               <div class="stat">
                 <div class="stat-label">المهام</div>
-                <div
-                  class="stat-value"
-                  id="sTasks"
-                >
-                  0
-                </div>
+                <div class="stat-value" id="sTasks">0</div>
               </div>
 
               <div class="stat">
                 <div class="stat-label">الموظفين</div>
-                <div
-                  class="stat-value"
-                  id="sEmployees"
-                >
-                  0
-                </div>
+                <div class="stat-value" id="sEmployees">1</div>
               </div>
 
             </div>
@@ -1039,14 +189,8 @@
           </section>
 
 
-          <!-- =========================
-               REPORTS
-          ========================= -->
-
-          <section
-            id="reports"
-            class="page hidden"
-          >
+          <!-- REPORTS -->
+          <section id="reports" class="page hidden">
 
             <div class="page-head">
 
@@ -1056,21 +200,20 @@
               </div>
 
               <div class="actions">
+
                 <button
                   class="btn btn-green"
                   onclick="showReportForm()"
                 >
                   + إضافة تقرير
                 </button>
+
               </div>
 
             </div>
 
 
-            <div
-              id="reportAdd"
-              class="panel hidden"
-            >
+            <div id="reportAdd" class="panel hidden">
 
               <div class="panel-title">
                 إضافة تقرير جديد
@@ -1086,7 +229,7 @@
                       id="reportTitle"
                       type="text"
                       placeholder="عنوان التقرير"
-                    />
+                    >
                   </div>
 
                   <div class="field">
@@ -1095,7 +238,7 @@
                       id="reportClient"
                       type="text"
                       placeholder="اسم العميل"
-                    />
+                    >
                   </div>
 
                   <div class="field form-full">
@@ -1153,14 +296,6 @@
                   </thead>
 
                   <tbody id="reportsTable">
-                    <tr>
-                      <td
-                        colspan="5"
-                        class="loading"
-                      >
-                        جاري التحميل...
-                      </td>
-                    </tr>
                   </tbody>
 
                 </table>
@@ -1172,14 +307,8 @@
           </section>
 
 
-          <!-- =========================
-               TASKS
-          ========================= -->
-
-          <section
-            id="tasks"
-            class="page hidden"
-          >
+          <!-- TASKS -->
+          <section id="tasks" class="page hidden">
 
             <div class="page-head">
 
@@ -1207,24 +336,30 @@
                       id="taskTitle"
                       type="text"
                       placeholder="عنوان المهمة"
-                    />
+                    >
                   </div>
 
                   <div class="field">
+
                     <label>الموظف</label>
+
                     <select id="taskUser">
-                      <option value="">
-                        اختر الموظف
+                      <option value="1">
+                        System Admin
                       </option>
                     </select>
+
                   </div>
 
                   <div class="field form-full">
+
                     <label>تفاصيل المهمة</label>
+
                     <textarea
                       id="taskDetails"
                       placeholder="تفاصيل المهمة..."
                     ></textarea>
+
                   </div>
 
                   <div class="actions form-full">
@@ -1266,14 +401,6 @@
                   </thead>
 
                   <tbody id="tasksTable">
-                    <tr>
-                      <td
-                        colspan="5"
-                        class="loading"
-                      >
-                        جاري التحميل...
-                      </td>
-                    </tr>
                   </tbody>
 
                 </table>
@@ -1285,14 +412,8 @@
           </section>
 
 
-          <!-- =========================
-               CLIENTS
-          ========================= -->
-
-          <section
-            id="clients"
-            class="page hidden"
-          >
+          <!-- CLIENTS -->
+          <section id="clients" class="page hidden">
 
             <div class="page-head">
 
@@ -1315,40 +436,56 @@
                 <div class="form-grid">
 
                   <div class="field">
+
                     <label>اسم العميل</label>
+
                     <input
                       id="clientName"
                       type="text"
                       placeholder="اسم العميل"
-                    />
+                    >
+
                   </div>
 
+
                   <div class="field">
+
                     <label>جهة الاتصال</label>
+
                     <input
                       id="clientContact"
                       type="text"
                       placeholder="اسم جهة الاتصال"
-                    />
+                    >
+
                   </div>
 
+
                   <div class="field">
+
                     <label>الهاتف</label>
+
                     <input
                       id="clientPhone"
                       type="text"
                       placeholder="رقم الهاتف"
-                    />
+                    >
+
                   </div>
 
+
                   <div class="field">
+
                     <label>ملاحظات</label>
+
                     <input
                       id="clientNotes"
                       type="text"
                       placeholder="ملاحظات"
-                    />
+                    >
+
                   </div>
+
 
                   <div class="actions form-full">
 
@@ -1379,23 +516,17 @@
                 <table class="table">
 
                   <thead>
+
                     <tr>
                       <th>العميل</th>
                       <th>جهة الاتصال</th>
                       <th>الهاتف</th>
                       <th>الملاحظات</th>
                     </tr>
+
                   </thead>
 
                   <tbody id="clientsTable">
-                    <tr>
-                      <td
-                        colspan="4"
-                        class="loading"
-                      >
-                        جاري التحميل...
-                      </td>
-                    </tr>
                   </tbody>
 
                 </table>
@@ -1407,18 +538,13 @@
           </section>
 
 
-          <!-- =========================
-               ATTENDANCE
-          ========================= -->
-
-          <section
-            id="attendance"
-            class="page hidden"
-          >
+          <!-- ATTENDANCE -->
+          <section id="attendance" class="page hidden">
 
             <div class="page-head">
 
               <div>
+
                 <h2 id="attendanceTitle">
                   الحضور والانصراف
                 </h2>
@@ -1426,12 +552,14 @@
                 <p>
                   تسجيل ومتابعة حضور وانصراف الموظفين
                 </p>
+
               </div>
 
             </div>
 
 
             <!-- Employee Attendance -->
+
             <div class="attendance-main">
 
               <div class="attendance-card">
@@ -1440,27 +568,6 @@
                   id="attendanceToday"
                   class="attendanceStatus"
                 >
-
-                  <div class="attendanceIcon">
-                    🕐
-                  </div>
-
-                  <div class="attendanceInfo">
-
-                    <h3 id="attendanceTodayTitle">
-                      حضور اليوم
-                    </h3>
-
-                    <p>
-                      جاري تحميل حالة الحضور...
-                    </p>
-
-                    <div
-                      class="attendanceHours hidden"
-                    ></div>
-
-                  </div>
-
                 </div>
 
                 <div
@@ -1483,9 +590,13 @@
                 </p>
 
                 <div class="date-box">
+
                   🕐 التوقيت المستخدم: السعودية
-                  <br />
+
+                  <br>
+
                   Asia/Riyadh
+
                 </div>
 
               </div>
@@ -1493,7 +604,8 @@
             </div>
 
 
-            <!-- Admin / Manager Attendance -->
+            <!-- Admin Attendance -->
+
             <div
               id="attendanceAdminPanel"
               class="panel adminOnly"
@@ -1502,6 +614,7 @@
               <div class="page-head">
 
                 <div>
+
                   <h2 id="attendanceAdminTitle">
                     سجل حضور الموظفين
                   </h2>
@@ -1509,6 +622,7 @@
                   <p>
                     متابعة حضور وانصراف فريق العمل
                   </p>
+
                 </div>
 
               </div>
@@ -1519,22 +633,23 @@
                 <div class="field">
 
                   <label id="attendanceFilterLabel">
-                    التاريخ
+                    عرض التاريخ
                   </label>
 
                   <input
                     id="attendanceDate"
                     type="date"
-                  />
+                  >
 
                 </div>
+
 
                 <button
                   id="attendanceExport"
                   type="button"
                   class="btn btn-blue"
                 >
-                  📥 تصدير CSV
+                  ⬇ تصدير الحضور
                 </button>
 
               </div>
@@ -1557,16 +672,6 @@
                   </thead>
 
                   <tbody id="attendanceTable">
-
-                    <tr>
-                      <td
-                        colspan="5"
-                        class="loading"
-                      >
-                        جاري تحميل سجل الحضور...
-                      </td>
-                    </tr>
-
                   </tbody>
 
                 </table>
@@ -1578,20 +683,19 @@
           </section>
 
 
-          <!-- =========================
-               USERS
-          ========================= -->
-
-          <section
-            id="users"
-            class="page hidden"
-          >
+          <!-- USERS -->
+          <section id="users" class="page hidden">
 
             <div class="page-head">
 
               <div>
+
                 <h2>الموظفين</h2>
-                <p>إدارة حسابات وصلاحيات الموظفين</p>
+
+                <p>
+                  إدارة حسابات وصلاحيات الموظفين
+                </p>
+
               </div>
 
             </div>
@@ -1608,33 +712,46 @@
                 <div class="form-grid">
 
                   <div class="field">
+
                     <label>اسم المستخدم</label>
+
                     <input
                       id="newUsername"
                       type="text"
                       placeholder="اسم المستخدم"
-                    />
+                    >
+
                   </div>
 
+
                   <div class="field">
+
                     <label>كلمة المرور</label>
+
                     <input
                       id="newPassword"
                       type="password"
                       placeholder="كلمة المرور"
-                    />
+                    >
+
                   </div>
 
+
                   <div class="field">
+
                     <label>اسم الموظف</label>
+
                     <input
                       id="newName"
                       type="text"
                       placeholder="اسم الموظف"
-                    />
+                    >
+
                   </div>
 
+
                   <div class="field">
+
                     <label>الصلاحية</label>
 
                     <select id="newRole">
@@ -1654,6 +771,7 @@
                     </select>
 
                   </div>
+
 
                   <div class="actions form-full">
 
@@ -1696,16 +814,6 @@
                   </thead>
 
                   <tbody id="usersTable">
-
-                    <tr>
-                      <td
-                        colspan="5"
-                        class="loading"
-                      >
-                        جاري التحميل...
-                      </td>
-                    </tr>
-
                   </tbody>
 
                 </table>
@@ -1718,6 +826,7 @@
 
 
         </div>
+
       </main>
 
     </div>
