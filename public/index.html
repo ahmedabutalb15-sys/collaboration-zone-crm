@@ -1,830 +1,1732 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="theme-color" content="#0b4565">
-<link rel="manifest" href="/manifest.json">
-<title>Collaboration Zone CRM</title>
-
-<style>
-:root{
-  --green:#39a935;
-  --green-dark:#238329;
-  --orange:#f28c00;
-  --blue:#0b4565;
-  --blue-dark:#08354e;
-  --light:#f4f8fa;
-  --white:#fff;
-  --text:#173044;
-  --muted:#71808c;
-  --border:#e4ebef;
-  --shadow:0 8px 25px rgba(8,53,78,.08);
-}
-
-*{box-sizing:border-box}
-
-html,body{
-  margin:0;
-  min-height:100%;
-  font-family:Arial,Tahoma,sans-serif;
-  background:var(--light);
-  color:var(--text);
-}
-
-body{
-  background:
-    radial-gradient(circle at 90% 0%,rgba(57,169,53,.08),transparent 25%),
-    radial-gradient(circle at 10% 100%,rgba(242,140,0,.06),transparent 25%),
-    var(--light);
-}
-
-button,input,select,textarea{
-  font:inherit;
-}
-
-button{
-  cursor:pointer;
-  border:0;
-  border-radius:10px;
-  padding:11px 16px;
-  transition:.2s ease;
-}
-
-button:hover{
-  transform:translateY(-1px);
-}
-
-.login{
-  min-height:100vh;
-  display:grid;
-  place-items:center;
-  padding:25px;
-  background:linear-gradient(135deg,rgba(8,53,78,.97),rgba(57,169,53,.90));
-  position:relative;
-  overflow:hidden;
-}
-
-.login:before,
-.login:after{
-  content:"";
-  position:absolute;
-  border-radius:50%;
-  opacity:.15;
-}
-
-.login:before{
-  width:420px;
-  height:420px;
-  background:var(--orange);
-  top:-180px;
-  left:-150px;
-}
-
-.login:after{
-  width:500px;
-  height:500px;
-  background:var(--green);
-  bottom:-250px;
-  right:-180px;
-}
-
-.card{
-  background:rgba(255,255,255,.98);
-  border-radius:22px;
-  padding:32px;
-  box-shadow:0 25px 70px rgba(0,0,0,.20);
-}
-
-.login .card{
-  width:min(450px,100%);
-  position:relative;
-  z-index:2;
-  text-align:center;
-  border-top:6px solid var(--orange);
-}
-
-.loginLogo{
-  width:190px;
-  max-width:75%;
-  height:auto;
-  object-fit:contain;
-  margin:0 auto 12px;
-  display:block;
-}
-
-.login .brand{
-  color:var(--blue);
-  font-size:28px;
-  font-weight:900;
-}
-
-.login .muted{
-  margin-bottom:25px;
-}
-
-.muted{
-  color:var(--muted);
-}
-
-input,select,textarea{
-  width:100%;
-  padding:12px 14px;
-  border:1px solid var(--border);
-  border-radius:11px;
-  margin:6px 0 14px;
-  background:#fff;
-  color:var(--text);
-  outline:none;
-  transition:.2s;
-}
-
-input:focus,
-select:focus,
-textarea:focus{
-  border-color:var(--green);
-  box-shadow:0 0 0 3px rgba(57,169,53,.12);
-}
-
-label{
-  font-weight:700;
-  font-size:14px;
-  color:var(--blue);
-}
-
-.primary{
-  background:linear-gradient(135deg,var(--green),var(--green-dark));
-  color:white;
-  box-shadow:0 5px 15px rgba(57,169,53,.25);
-}
-
-.primary:hover{
-  box-shadow:0 8px 20px rgba(57,169,53,.35);
-}
-
-.danger{
-  background:#fee8e5;
-  color:#a52c22;
-}
-
-.ghost{
-  background:#edf3f6;
-  color:var(--blue);
-}
-
-.app{
-  display:none;
-  min-height:100vh;
-}
-
-.side{
-  width:265px;
-  background:linear-gradient(180deg,var(--blue-dark),var(--blue));
-  color:white;
-  position:fixed;
-  top:0;
-  bottom:0;
-  right:0;
-  padding:20px 18px;
-  box-shadow:4px 0 25px rgba(0,0,0,.08);
-  overflow:auto;
-}
-
-.side:after{
-  content:"";
-  position:absolute;
-  bottom:0;
-  right:0;
-  left:0;
-  height:6px;
-  background:linear-gradient(
-    90deg,
-    var(--green) 0 45%,
-    var(--orange) 45% 70%,
-    var(--green) 70%
-  );
-}
-
-.sideLogo{
-  width:155px;
-  height:95px;
-  object-fit:contain;
-  background:white;
-  border-radius:14px;
-  padding:7px;
-  display:block;
-  margin:0 auto 12px;
-}
-
-.side .brand{
-  font-size:20px;
-  font-weight:900;
-  text-align:center;
-  padding-bottom:15px;
-  border-bottom:1px solid rgba(255,255,255,.12);
-  margin-bottom:15px!important;
-}
-
-.side button{
-  display:block;
-  width:100%;
-  text-align:right;
-  background:transparent;
-  color:#dce8ed;
-  margin:6px 0;
-  padding:13px 14px;
-  border-radius:12px;
-}
-
-.side button.active,
-.side button:hover{
-  background:rgba(255,255,255,.12);
-  color:white;
-}
-
-.side button.active{
-  border-right:4px solid var(--orange);
-  padding-right:10px;
-}
-
-.main{
-  margin-right:265px;
-  padding:28px;
-}
-
-.top{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  gap:15px;
-  margin-bottom:24px;
-  background:white;
-  padding:18px 22px;
-  border-radius:18px;
-  box-shadow:var(--shadow);
-  border-right:5px solid var(--green);
-}
-
-.top h2{
-  margin:0 0 5px;
-  color:var(--blue);
-}
-
-.grid{
-  display:grid;
-  grid-template-columns:repeat(4,1fr);
-  gap:16px;
-}
-
-.stat{
-  background:white;
-  padding:22px;
-  border-radius:18px;
-  box-shadow:var(--shadow);
-  border-top:4px solid var(--green);
-  position:relative;
-  overflow:hidden;
-}
-
-.stat:nth-child(2){
-  border-top-color:var(--orange);
-}
-
-.stat:nth-child(3){
-  border-top-color:var(--blue);
-}
-
-.stat:nth-child(4){
-  border-top-color:var(--green);
-}
-
-.stat:after{
-  content:"";
-  position:absolute;
-  width:70px;
-  height:70px;
-  border-radius:50%;
-  background:rgba(57,169,53,.06);
-  left:-20px;
-  bottom:-25px;
-}
-
-.stat b{
-  font-size:32px;
-  display:block;
-  margin-top:10px;
-  color:var(--blue);
-}
-
-.panel{
-  background:white;
-  border-radius:18px;
-  padding:22px;
-  margin-top:18px;
-  overflow:auto;
-  box-shadow:var(--shadow);
-}
-
-.panel h3{
-  margin-top:0;
-  color:var(--blue);
-}
-
-.row{
-  display:grid;
-  grid-template-columns:repeat(2,1fr);
-  gap:14px;
-}
-
-.table{
-  width:100%;
-  border-collapse:collapse;
-}
-
-.table th{
-  background:#f0f6f8;
-  color:var(--blue);
-  font-weight:800;
-}
-
-.table th,
-.table td{
-  padding:12px;
-  border-bottom:1px solid #edf1f3;
-  text-align:right;
-  vertical-align:top;
-}
-
-.table tr:hover td{
-  background:#fafcfd;
-}
-
-.badge{
-  padding:6px 10px;
-  border-radius:20px;
-  background:#e8f1f5;
-  font-size:12px;
-  font-weight:700;
-}
-
-.approved{
-  background:#dcfce7;
-  color:#166534;
-}
-
-.rejected{
-  background:#fee2e2;
-  color:#991b1b;
-}
-
-.pending{
-  background:#fff3d6;
-  color:#92400e;
-}
-
-.hidden{
-  display:none!important;
-}
-
-@media(max-width:1000px){
-  .grid{
-    grid-template-columns:repeat(2,1fr);
-  }
-}
-
-@media(max-width:800px){
-  .side{
-    width:100%;
-    height:auto;
-    position:relative;
-    display:flex;
-    overflow:auto;
-    padding:8px;
-  }
-
-  .sideLogo,
-  .side .brand,
-  .side .who{
-    display:none;
-  }
-
-  .side button{
-    white-space:nowrap;
-    width:auto;
-    margin:0 3px;
-  }
-
-  .main{
-    margin-right:0;
-    padding:14px;
-  }
-
-  .grid{
-    grid-template-columns:repeat(2,1fr);
-    gap:10px;
-  }
-
-  .row{
-    grid-template-columns:1fr;
-  }
-
-  .top{
-    align-items:flex-start;
-    padding:15px;
-  }
-
-  .top h2{
-    font-size:20px;
-  }
-
-  .table{
-    min-width:700px;
-  }
-
-  .panel{
-    padding:15px;
-  }
-}
-
-@media(max-width:500px){
-  .grid{
-    grid-template-columns:1fr 1fr;
-  }
-
-  .stat{
-    padding:15px;
-  }
-
-  .stat b{
-    font-size:25px;
-  }
-
-  .login .card{
-    padding:25px 20px;
-  }
-
-  .loginLogo{
-    width:160px;
-  }
-}
-</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <meta name="theme-color" content="#0b4565" />
+  <meta name="description" content="Collaboration Zone CRM" />
+
+  <link rel="manifest" href="/manifest.json" />
+
+  <title>Collaboration Zone CRM</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: Arial, Tahoma, sans-serif;
+      background: #f4f7f9;
+      color: #18313f;
+      min-height: 100vh;
+    }
+
+    button,
+    input,
+    textarea,
+    select {
+      font-family: inherit;
+    }
+
+    button {
+      cursor: pointer;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    /* =========================
+       LOGIN
+    ========================= */
+
+    #login {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      background:
+        linear-gradient(135deg, #08354e 0%, #0b4565 50%, #238329 100%);
+    }
+
+    .login-card {
+      width: 100%;
+      max-width: 420px;
+      background: white;
+      border-radius: 22px;
+      padding: 35px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.18);
+    }
+
+    .login-logo {
+      width: 100%;
+      max-width: 210px;
+      height: auto;
+      display: block;
+      margin: 0 auto 25px;
+      object-fit: contain;
+    }
+
+    .login-title {
+      text-align: center;
+      color: #0b4565;
+      margin-bottom: 8px;
+      font-size: 26px;
+    }
+
+    .login-subtitle {
+      text-align: center;
+      color: #71808a;
+      margin-bottom: 25px;
+      font-size: 14px;
+    }
+
+    .field {
+      margin-bottom: 16px;
+    }
+
+    .field label {
+      display: block;
+      margin-bottom: 7px;
+      font-weight: 700;
+      color: #284653;
+      font-size: 14px;
+    }
+
+    .field input,
+    .field textarea,
+    .field select {
+      width: 100%;
+      border: 1px solid #d7e0e5;
+      border-radius: 10px;
+      padding: 12px 13px;
+      background: #fff;
+      outline: none;
+      transition: 0.2s;
+      font-size: 14px;
+    }
+
+    .field textarea {
+      min-height: 100px;
+      resize: vertical;
+    }
+
+    .field input:focus,
+    .field textarea:focus,
+    .field select:focus {
+      border-color: #39a935;
+      box-shadow: 0 0 0 3px rgba(57, 169, 53, 0.1);
+    }
+
+    .primary-btn {
+      width: 100%;
+      border: 0;
+      border-radius: 10px;
+      padding: 13px;
+      background: #39a935;
+      color: white;
+      font-weight: 700;
+      font-size: 15px;
+      transition: 0.2s;
+    }
+
+    .primary-btn:hover {
+      background: #238329;
+      transform: translateY(-1px);
+    }
+
+    .error {
+      color: #c62828;
+      background: #fff0f0;
+      border: 1px solid #ffd0d0;
+      padding: 10px;
+      border-radius: 8px;
+      margin-top: 12px;
+      font-size: 13px;
+      text-align: center;
+    }
+
+    /* =========================
+       APP LAYOUT
+    ========================= */
+
+    #app {
+      min-height: 100vh;
+    }
+
+    .app-layout {
+      min-height: 100vh;
+      display: flex;
+    }
+
+    .sidebar {
+      width: 245px;
+      background: #08354e;
+      color: white;
+      padding: 22px 15px;
+      position: fixed;
+      top: 0;
+      bottom: 0;
+      right: 0;
+      z-index: 50;
+      overflow-y: auto;
+    }
+
+    .sidebar-brand {
+      text-align: center;
+      padding: 8px 10px 25px;
+      border-bottom: 1px solid rgba(255,255,255,0.12);
+      margin-bottom: 18px;
+    }
+
+    .sidebar-brand img {
+      width: 145px;
+      max-width: 100%;
+      max-height: 80px;
+      object-fit: contain;
+      background: white;
+      border-radius: 10px;
+      padding: 8px;
+    }
+
+    .sidebar-brand h2 {
+      margin-top: 12px;
+      font-size: 17px;
+    }
+
+    .sidebar-brand p {
+      margin-top: 5px;
+      color: rgba(255,255,255,0.65);
+      font-size: 11px;
+    }
+
+    .nav {
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+    }
+
+    .nav button {
+      width: 100%;
+      border: 0;
+      background: transparent;
+      color: rgba(255,255,255,0.86);
+      padding: 12px 14px;
+      border-radius: 10px;
+      text-align: right;
+      font-size: 14px;
+      transition: 0.2s;
+    }
+
+    .nav button:hover {
+      background: rgba(255,255,255,0.1);
+      color: white;
+    }
+
+    .nav button.active {
+      background: #39a935;
+      color: white;
+      font-weight: 700;
+    }
+
+    .nav .logout-btn {
+      margin-top: 15px;
+      background: rgba(242, 140, 0, 0.14);
+      color: #ffd49c;
+    }
+
+    .nav .logout-btn:hover {
+      background: #f28c00;
+      color: white;
+    }
+
+    .main {
+      flex: 1;
+      margin-right: 245px;
+      min-width: 0;
+    }
+
+    .topbar {
+      height: 70px;
+      background: white;
+      border-bottom: 1px solid #e4eaee;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 15px;
+      padding: 0 25px;
+      position: sticky;
+      top: 0;
+      z-index: 30;
+    }
+
+    .topbar-title {
+      color: #0b4565;
+      font-size: 22px;
+      font-weight: 800;
+    }
+
+    .topbar-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .who {
+      color: #6b7c86;
+      font-size: 13px;
+    }
+
+    .top-btn {
+      border: 1px solid #dbe4e8;
+      background: white;
+      color: #0b4565;
+      padding: 8px 12px;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 12px;
+    }
+
+    .top-btn:hover {
+      border-color: #39a935;
+      color: #238329;
+    }
+
+    .content {
+      padding: 25px;
+      max-width: 1600px;
+      margin: auto;
+    }
+
+    /* =========================
+       GENERAL
+    ========================= */
+
+    .page {
+      animation: pageIn 0.2s ease;
+    }
+
+    @keyframes pageIn {
+      from {
+        opacity: 0;
+        transform: translateY(4px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .page-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 15px;
+      margin-bottom: 20px;
+    }
+
+    .page-head h2 {
+      color: #0b4565;
+      font-size: 22px;
+    }
+
+    .page-head p {
+      color: #778992;
+      margin-top: 5px;
+      font-size: 13px;
+    }
+
+    .panel {
+      background: white;
+      border-radius: 15px;
+      border: 1px solid #e2e9ed;
+      padding: 20px;
+      margin-bottom: 20px;
+      box-shadow: 0 4px 18px rgba(8, 53, 78, 0.04);
+    }
+
+    .panel-title {
+      color: #0b4565;
+      font-size: 17px;
+      font-weight: 800;
+      margin-bottom: 16px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 15px;
+    }
+
+    .stat {
+      background: white;
+      border: 1px solid #e1e9ed;
+      border-radius: 15px;
+      padding: 20px;
+      box-shadow: 0 4px 18px rgba(8, 53, 78, 0.04);
+    }
+
+    .stat-label {
+      color: #71818b;
+      font-size: 13px;
+      margin-bottom: 8px;
+    }
+
+    .stat-value {
+      color: #0b4565;
+      font-size: 28px;
+      font-weight: 800;
+    }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .btn {
+      border: 0;
+      border-radius: 9px;
+      padding: 10px 15px;
+      font-weight: 700;
+      font-size: 13px;
+      transition: 0.2s;
+    }
+
+    .btn-green {
+      background: #39a935;
+      color: white;
+    }
+
+    .btn-green:hover {
+      background: #238329;
+    }
+
+    .btn-blue {
+      background: #0b4565;
+      color: white;
+    }
+
+    .btn-blue:hover {
+      background: #08354e;
+    }
+
+    .btn-orange {
+      background: #f28c00;
+      color: white;
+    }
+
+    .btn-orange:hover {
+      background: #d97800;
+    }
+
+    .btn-light {
+      background: #eef3f5;
+      color: #294654;
+    }
+
+    .btn-light:hover {
+      background: #e0e8eb;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 15px;
+    }
+
+    .form-full {
+      grid-column: 1 / -1;
+    }
+
+    /* =========================
+       TABLE
+    ========================= */
+
+    .table-wrap {
+      width: 100%;
+      overflow-x: auto;
+      border: 1px solid #e1e8ec;
+      border-radius: 10px;
+    }
+
+    .table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 700px;
+      background: white;
+    }
+
+    .table th {
+      background: #f4f7f9;
+      color: #34515f;
+      font-size: 12px;
+      padding: 12px;
+      text-align: right;
+      white-space: nowrap;
+    }
+
+    .table td {
+      padding: 12px;
+      border-top: 1px solid #edf1f3;
+      color: #425963;
+      font-size: 13px;
+      vertical-align: middle;
+    }
+
+    .table tr:hover td {
+      background: #fafcfc;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 5px 9px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    .approved {
+      color: #237a2a;
+      background: #e8f6e7;
+    }
+
+    .rejected {
+      color: #a62b2b;
+      background: #fdeaea;
+    }
+
+    .pending {
+      color: #9a6100;
+      background: #fff4d9;
+    }
+
+    /* =========================
+       ATTENDANCE
+    ========================= */
+
+    .attendance-main {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(280px, 380px);
+      gap: 20px;
+      align-items: stretch;
+    }
+
+    .attendance-card {
+      background: white;
+      border: 1px solid #e1e9ed;
+      border-radius: 18px;
+      padding: 25px;
+      box-shadow: 0 5px 22px rgba(8, 53, 78, 0.05);
+    }
+
+    .attendanceStatus {
+      min-height: 220px;
+      display: flex;
+      align-items: center;
+      gap: 22px;
+    }
+
+    .attendanceIcon {
+      width: 95px;
+      height: 95px;
+      border-radius: 50%;
+      background: #e9f6e8;
+      color: #39a935;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 42px;
+      flex-shrink: 0;
+    }
+
+    .attendanceInfo {
+      flex: 1;
+    }
+
+    .attendanceInfo h3 {
+      color: #0b4565;
+      font-size: 21px;
+      margin-bottom: 8px;
+    }
+
+    .attendanceInfo p {
+      color: #71818b;
+      font-size: 13px;
+      line-height: 1.7;
+    }
+
+    .attendanceHours {
+      margin-top: 13px;
+      display: inline-flex;
+      padding: 8px 12px;
+      background: #f2f6f8;
+      color: #0b4565;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 13px;
+    }
+
+    .attendanceActions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 20px;
+    }
+
+    .attendanceBtn {
+      min-width: 145px;
+      border: 0;
+      border-radius: 10px;
+      padding: 13px 18px;
+      font-weight: 800;
+      font-size: 14px;
+      transition: 0.2s;
+    }
+
+    .attendanceBtn.checkIn {
+      background: #39a935;
+      color: white;
+    }
+
+    .attendanceBtn.checkIn:hover {
+      background: #238329;
+    }
+
+    .attendanceBtn.checkOut {
+      background: #f28c00;
+      color: white;
+    }
+
+    .attendanceBtn.checkOut:hover {
+      background: #d97800;
+    }
+
+    .attendanceBtn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .attendance-side {
+      background: linear-gradient(145deg, #08354e, #0b4565);
+      color: white;
+      border-radius: 18px;
+      padding: 25px;
+      min-height: 220px;
+    }
+
+    .attendance-side h3 {
+      font-size: 18px;
+      margin-bottom: 12px;
+    }
+
+    .attendance-side p {
+      color: rgba(255,255,255,0.75);
+      font-size: 13px;
+      line-height: 1.8;
+    }
+
+    .attendance-side .date-box {
+      margin-top: 20px;
+      padding: 13px;
+      background: rgba(255,255,255,0.09);
+      border-radius: 10px;
+      font-size: 13px;
+    }
+
+    .attendance-filter {
+      display: flex;
+      align-items: end;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 18px;
+    }
+
+    .attendance-filter .field {
+      margin: 0;
+      min-width: 190px;
+    }
+
+    .attendance-filter .field label {
+      color: #5d707b;
+    }
+
+    .attendance-filter input[type="date"] {
+      min-height: 40px;
+    }
+
+    /* =========================
+       EMPTY / LOADING
+    ========================= */
+
+    .empty {
+      text-align: center;
+      padding: 35px 20px;
+      color: #7c8b93;
+      font-size: 14px;
+    }
+
+    .loading {
+      text-align: center;
+      padding: 25px;
+      color: #71818b;
+      font-size: 13px;
+    }
+
+    /* =========================
+       RESPONSIVE
+    ========================= */
+
+    @media (max-width: 1100px) {
+      .grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .attendance-main {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 800px) {
+      .sidebar {
+        position: fixed;
+        top: auto;
+        bottom: 0;
+        right: 0;
+        left: 0;
+        width: 100%;
+        height: auto;
+        padding: 8px;
+        overflow-x: auto;
+        overflow-y: hidden;
+      }
+
+      .sidebar-brand {
+        display: none;
+      }
+
+      .nav {
+        flex-direction: row;
+        gap: 5px;
+        min-width: max-content;
+      }
+
+      .nav button {
+        width: auto;
+        white-space: nowrap;
+        padding: 10px 12px;
+        font-size: 12px;
+        text-align: center;
+      }
+
+      .nav .logout-btn {
+        margin-top: 0;
+      }
+
+      .main {
+        margin-right: 0;
+        padding-bottom: 70px;
+      }
+
+      .topbar {
+        height: 62px;
+        padding: 0 15px;
+      }
+
+      .topbar-title {
+        font-size: 18px;
+      }
+
+      .who {
+        display: none;
+      }
+
+      .content {
+        padding: 15px;
+      }
+
+      .form-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .form-full {
+        grid-column: auto;
+      }
+
+      .attendanceStatus {
+        flex-direction: column;
+        text-align: center;
+      }
+
+      .attendanceActions {
+        justify-content: center;
+      }
+    }
+
+    @media (max-width: 500px) {
+      .grid {
+        grid-template-columns: 1fr;
+      }
+
+      .login-card {
+        padding: 25px 20px;
+      }
+
+      .page-head {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+
+      .panel {
+        padding: 15px;
+      }
+
+      .attendance-card,
+      .attendance-side {
+        padding: 18px;
+      }
+
+      .attendanceIcon {
+        width: 80px;
+        height: 80px;
+        font-size: 34px;
+      }
+
+      .attendanceInfo h3 {
+        font-size: 18px;
+      }
+
+      .attendanceBtn {
+        width: 100%;
+      }
+
+      .topbar-actions {
+        gap: 5px;
+      }
+
+      .top-btn {
+        padding: 7px 9px;
+      }
+    }
+  </style>
 </head>
 
 <body>
 
-<div id="login" class="login">
-  <div class="card">
+  <!-- =========================
+       LOGIN
+  ========================= -->
 
-    <img src="/logo.png" class="loginLogo" alt="Collaboration Zone">
+  <section id="login">
+    <div class="login-card">
 
-    <div class="brand">Collaboration Zone</div>
-    <p class="muted">CRM & Work Management</p>
+      <img
+        src="/logo.png"
+        alt="Collaboration Zone"
+        class="login-logo"
+      />
 
-    <form id="loginForm">
-      <label>اسم المستخدم</label>
-      <input id="username" value="admin" required>
+      <h1 class="login-title">Collaboration Zone</h1>
+      <p class="login-subtitle">CRM & Work Management System</p>
 
-      <label>كلمة المرور</label>
-      <input id="password" type="password" value="admin123" required>
+      <form id="loginForm">
 
-      <button class="primary" style="width:100%">دخول</button>
-    </form>
+        <div class="field">
+          <label for="username">اسم المستخدم</label>
+          <input
+            id="username"
+            type="text"
+            autocomplete="username"
+            placeholder="اسم المستخدم"
+            required
+          />
+        </div>
 
-    <p id="loginErr" class="danger hidden"></p>
+        <div class="field">
+          <label for="password">كلمة المرور</label>
+          <input
+            id="password"
+            type="password"
+            autocomplete="current-password"
+            placeholder="كلمة المرور"
+            required
+          />
+        </div>
 
-  </div>
-</div>
+        <button type="submit" class="primary-btn">
+          تسجيل الدخول
+        </button>
 
+        <div id="loginErr" class="error hidden"></div>
 
-<div id="app" class="app">
-
-<aside class="side">
-
-  <img src="/logo.png" class="sideLogo" alt="Collaboration Zone">
-
-  <div class="brand">Collaboration Zone</div>
-
-  <button data-page="dashboard" class="active">📊 لوحة التحكم</button>
-  <button data-page="reports">📝 الريبورتات</button>
-  <button data-page="tasks">✅ المهام</button>
-  <button data-page="clients">👥 العملاء</button>
-  <button data-page="users" class="adminOnly">🔐 الموظفين والحسابات</button>
-
-  <div style="margin-top:auto"></div>
-
-  <button id="logout">🚪 تسجيل خروج</button>
-
-</aside>
-
-
-<main class="main">
+      </form>
+    </div>
+  </section>
 
 
-  <div class="top">
+  <!-- =========================
+       APP
+  ========================= -->
 
-    <div>
-      <h2 id="pageTitle">لوحة التحكم</h2>
-      <span id="who" class="muted"></span>
+  <section id="app" class="hidden">
+
+    <div class="app-layout">
+
+      <!-- SIDEBAR -->
+      <aside class="sidebar">
+
+        <div class="sidebar-brand">
+          <img
+            src="/logo.png"
+            alt="Collaboration Zone"
+          />
+
+          <h2>Collaboration Zone</h2>
+          <p>CRM System</p>
+        </div>
+
+        <nav class="nav">
+
+          <button
+            data-page="dashboard"
+            class="active"
+          >
+            🏠 الرئيسية
+          </button>
+
+          <button data-page="reports">
+            📋 التقارير
+          </button>
+
+          <button data-page="tasks">
+            ✅ المهام
+          </button>
+
+          <button data-page="clients">
+            👥 جهات الاتصال
+          </button>
+
+          <button data-page="attendance">
+            🕐 الحضور والانصراف
+          </button>
+
+          <button
+            data-page="users"
+            class="adminOnly"
+          >
+            👤 الموظفين
+          </button>
+
+          <button
+            id="logout"
+            class="logout-btn"
+          >
+            🚪 تسجيل الخروج
+          </button>
+
+        </nav>
+
+      </aside>
+
+
+      <!-- MAIN -->
+      <main class="main">
+
+        <!-- TOP BAR -->
+        <header class="topbar">
+
+          <div class="topbar-title" id="pageTitle">
+            الرئيسية
+          </div>
+
+          <div class="topbar-actions">
+
+            <span id="who" class="who"></span>
+
+            <button
+              id="langBtn"
+              class="top-btn"
+              type="button"
+            >
+              EN
+            </button>
+
+            <button
+              class="top-btn"
+              type="button"
+              onclick="showReportForm()"
+            >
+              + ريبورت جديد
+            </button>
+
+          </div>
+
+        </header>
+
+
+        <!-- CONTENT -->
+        <div class="content">
+
+
+          <!-- =========================
+               DASHBOARD
+          ========================= -->
+
+          <section
+            id="dashboard"
+            class="page"
+          >
+
+            <div class="page-head">
+              <div>
+                <h2>لوحة التحكم</h2>
+                <p>ملخص سريع لحالة العمل داخل الشركة</p>
+              </div>
+            </div>
+
+            <div class="grid">
+
+              <div class="stat">
+                <div class="stat-label">التقارير</div>
+                <div
+                  class="stat-value"
+                  id="sReports"
+                >
+                  0
+                </div>
+              </div>
+
+              <div class="stat">
+                <div class="stat-label">التقارير المعلقة</div>
+                <div
+                  class="stat-value"
+                  id="sPending"
+                >
+                  0
+                </div>
+              </div>
+
+              <div class="stat">
+                <div class="stat-label">المهام</div>
+                <div
+                  class="stat-value"
+                  id="sTasks"
+                >
+                  0
+                </div>
+              </div>
+
+              <div class="stat">
+                <div class="stat-label">الموظفين</div>
+                <div
+                  class="stat-value"
+                  id="sEmployees"
+                >
+                  0
+                </div>
+              </div>
+
+            </div>
+
+          </section>
+
+
+          <!-- =========================
+               REPORTS
+          ========================= -->
+
+          <section
+            id="reports"
+            class="page hidden"
+          >
+
+            <div class="page-head">
+
+              <div>
+                <h2>التقارير</h2>
+                <p>إدارة تقارير العمل والزيارات</p>
+              </div>
+
+              <div class="actions">
+                <button
+                  class="btn btn-green"
+                  onclick="showReportForm()"
+                >
+                  + إضافة تقرير
+                </button>
+              </div>
+
+            </div>
+
+
+            <div
+              id="reportAdd"
+              class="panel hidden"
+            >
+
+              <div class="panel-title">
+                إضافة تقرير جديد
+              </div>
+
+              <form id="reportForm">
+
+                <div class="form-grid">
+
+                  <div class="field">
+                    <label>العنوان</label>
+                    <input
+                      id="reportTitle"
+                      type="text"
+                      placeholder="عنوان التقرير"
+                    />
+                  </div>
+
+                  <div class="field">
+                    <label>العميل</label>
+                    <input
+                      id="reportClient"
+                      type="text"
+                      placeholder="اسم العميل"
+                    />
+                  </div>
+
+                  <div class="field form-full">
+                    <label>التفاصيل</label>
+                    <textarea
+                      id="reportDetails"
+                      placeholder="اكتب تفاصيل التقرير..."
+                    ></textarea>
+                  </div>
+
+                  <div class="actions form-full">
+
+                    <button
+                      type="submit"
+                      class="btn btn-green"
+                    >
+                      حفظ التقرير
+                    </button>
+
+                    <button
+                      type="button"
+                      class="btn btn-light"
+                      onclick="showReportForm(false)"
+                    >
+                      إلغاء
+                    </button>
+
+                  </div>
+
+                </div>
+
+              </form>
+
+            </div>
+
+
+            <div class="panel">
+
+              <div class="panel-title">
+                قائمة التقارير
+              </div>
+
+              <div class="table-wrap">
+
+                <table class="table">
+
+                  <thead>
+                    <tr>
+                      <th>التاريخ</th>
+                      <th>الموظف</th>
+                      <th>العنوان</th>
+                      <th>العميل</th>
+                      <th>الحالة</th>
+                    </tr>
+                  </thead>
+
+                  <tbody id="reportsTable">
+                    <tr>
+                      <td
+                        colspan="5"
+                        class="loading"
+                      >
+                        جاري التحميل...
+                      </td>
+                    </tr>
+                  </tbody>
+
+                </table>
+
+              </div>
+
+            </div>
+
+          </section>
+
+
+          <!-- =========================
+               TASKS
+          ========================= -->
+
+          <section
+            id="tasks"
+            class="page hidden"
+          >
+
+            <div class="page-head">
+
+              <div>
+                <h2>المهام</h2>
+                <p>متابعة وتوزيع مهام الموظفين</p>
+              </div>
+
+            </div>
+
+
+            <div class="panel">
+
+              <div class="panel-title">
+                إضافة مهمة
+              </div>
+
+              <form id="taskAdd">
+
+                <div class="form-grid">
+
+                  <div class="field">
+                    <label>عنوان المهمة</label>
+                    <input
+                      id="taskTitle"
+                      type="text"
+                      placeholder="عنوان المهمة"
+                    />
+                  </div>
+
+                  <div class="field">
+                    <label>الموظف</label>
+                    <select id="taskUser">
+                      <option value="">
+                        اختر الموظف
+                      </option>
+                    </select>
+                  </div>
+
+                  <div class="field form-full">
+                    <label>تفاصيل المهمة</label>
+                    <textarea
+                      id="taskDetails"
+                      placeholder="تفاصيل المهمة..."
+                    ></textarea>
+                  </div>
+
+                  <div class="actions form-full">
+
+                    <button
+                      type="submit"
+                      class="btn btn-green"
+                    >
+                      إضافة المهمة
+                    </button>
+
+                  </div>
+
+                </div>
+
+              </form>
+
+            </div>
+
+
+            <div class="panel">
+
+              <div class="panel-title">
+                المهام الحالية
+              </div>
+
+              <div class="table-wrap">
+
+                <table class="table">
+
+                  <thead>
+                    <tr>
+                      <th>المهمة</th>
+                      <th>الموظف</th>
+                      <th>التفاصيل</th>
+                      <th>الحالة</th>
+                      <th>الإجراء</th>
+                    </tr>
+                  </thead>
+
+                  <tbody id="tasksTable">
+                    <tr>
+                      <td
+                        colspan="5"
+                        class="loading"
+                      >
+                        جاري التحميل...
+                      </td>
+                    </tr>
+                  </tbody>
+
+                </table>
+
+              </div>
+
+            </div>
+
+          </section>
+
+
+          <!-- =========================
+               CLIENTS
+          ========================= -->
+
+          <section
+            id="clients"
+            class="page hidden"
+          >
+
+            <div class="page-head">
+
+              <div>
+                <h2>جهات الاتصال</h2>
+                <p>إدارة العملاء وجهات الاتصال</p>
+              </div>
+
+            </div>
+
+
+            <div class="panel">
+
+              <div class="panel-title">
+                إضافة جهة اتصال
+              </div>
+
+              <form id="clientAdd">
+
+                <div class="form-grid">
+
+                  <div class="field">
+                    <label>اسم العميل</label>
+                    <input
+                      id="clientName"
+                      type="text"
+                      placeholder="اسم العميل"
+                    />
+                  </div>
+
+                  <div class="field">
+                    <label>جهة الاتصال</label>
+                    <input
+                      id="clientContact"
+                      type="text"
+                      placeholder="اسم جهة الاتصال"
+                    />
+                  </div>
+
+                  <div class="field">
+                    <label>الهاتف</label>
+                    <input
+                      id="clientPhone"
+                      type="text"
+                      placeholder="رقم الهاتف"
+                    />
+                  </div>
+
+                  <div class="field">
+                    <label>ملاحظات</label>
+                    <input
+                      id="clientNotes"
+                      type="text"
+                      placeholder="ملاحظات"
+                    />
+                  </div>
+
+                  <div class="actions form-full">
+
+                    <button
+                      type="submit"
+                      class="btn btn-green"
+                    >
+                      إضافة العميل
+                    </button>
+
+                  </div>
+
+                </div>
+
+              </form>
+
+            </div>
+
+
+            <div class="panel">
+
+              <div class="panel-title">
+                قائمة جهات الاتصال
+              </div>
+
+              <div class="table-wrap">
+
+                <table class="table">
+
+                  <thead>
+                    <tr>
+                      <th>العميل</th>
+                      <th>جهة الاتصال</th>
+                      <th>الهاتف</th>
+                      <th>الملاحظات</th>
+                    </tr>
+                  </thead>
+
+                  <tbody id="clientsTable">
+                    <tr>
+                      <td
+                        colspan="4"
+                        class="loading"
+                      >
+                        جاري التحميل...
+                      </td>
+                    </tr>
+                  </tbody>
+
+                </table>
+
+              </div>
+
+            </div>
+
+          </section>
+
+
+          <!-- =========================
+               ATTENDANCE
+          ========================= -->
+
+          <section
+            id="attendance"
+            class="page hidden"
+          >
+
+            <div class="page-head">
+
+              <div>
+                <h2 id="attendanceTitle">
+                  الحضور والانصراف
+                </h2>
+
+                <p>
+                  تسجيل ومتابعة حضور وانصراف الموظفين
+                </p>
+              </div>
+
+            </div>
+
+
+            <!-- Employee Attendance -->
+            <div class="attendance-main">
+
+              <div class="attendance-card">
+
+                <div
+                  id="attendanceToday"
+                  class="attendanceStatus"
+                >
+
+                  <div class="attendanceIcon">
+                    🕐
+                  </div>
+
+                  <div class="attendanceInfo">
+
+                    <h3 id="attendanceTodayTitle">
+                      حضور اليوم
+                    </h3>
+
+                    <p>
+                      جاري تحميل حالة الحضور...
+                    </p>
+
+                    <div
+                      class="attendanceHours hidden"
+                    ></div>
+
+                  </div>
+
+                </div>
+
+                <div
+                  id="attendanceActions"
+                  class="attendanceActions"
+                ></div>
+
+              </div>
+
+
+              <div class="attendance-side">
+
+                <h3>
+                  نظام الحضور
+                </h3>
+
+                <p>
+                  سجل حضورك عند بداية العمل،
+                  وسجل الانصراف عند انتهاء يوم العمل.
+                </p>
+
+                <div class="date-box">
+                  🕐 التوقيت المستخدم: السعودية
+                  <br />
+                  Asia/Riyadh
+                </div>
+
+              </div>
+
+            </div>
+
+
+            <!-- Admin / Manager Attendance -->
+            <div
+              id="attendanceAdminPanel"
+              class="panel adminOnly"
+            >
+
+              <div class="page-head">
+
+                <div>
+                  <h2 id="attendanceAdminTitle">
+                    سجل حضور الموظفين
+                  </h2>
+
+                  <p>
+                    متابعة حضور وانصراف فريق العمل
+                  </p>
+                </div>
+
+              </div>
+
+
+              <div class="attendance-filter">
+
+                <div class="field">
+
+                  <label id="attendanceFilterLabel">
+                    التاريخ
+                  </label>
+
+                  <input
+                    id="attendanceDate"
+                    type="date"
+                  />
+
+                </div>
+
+                <button
+                  id="attendanceExport"
+                  type="button"
+                  class="btn btn-blue"
+                >
+                  📥 تصدير CSV
+                </button>
+
+              </div>
+
+
+              <div class="table-wrap">
+
+                <table class="table">
+
+                  <thead>
+
+                    <tr>
+                      <th>الموظف</th>
+                      <th>التاريخ</th>
+                      <th>الحضور</th>
+                      <th>الانصراف</th>
+                      <th>الحالة</th>
+                    </tr>
+
+                  </thead>
+
+                  <tbody id="attendanceTable">
+
+                    <tr>
+                      <td
+                        colspan="5"
+                        class="loading"
+                      >
+                        جاري تحميل سجل الحضور...
+                      </td>
+                    </tr>
+
+                  </tbody>
+
+                </table>
+
+              </div>
+
+            </div>
+
+          </section>
+
+
+          <!-- =========================
+               USERS
+          ========================= -->
+
+          <section
+            id="users"
+            class="page hidden"
+          >
+
+            <div class="page-head">
+
+              <div>
+                <h2>الموظفين</h2>
+                <p>إدارة حسابات وصلاحيات الموظفين</p>
+              </div>
+
+            </div>
+
+
+            <div class="panel">
+
+              <div class="panel-title">
+                إضافة موظف
+              </div>
+
+              <form id="userAdd">
+
+                <div class="form-grid">
+
+                  <div class="field">
+                    <label>اسم المستخدم</label>
+                    <input
+                      id="newUsername"
+                      type="text"
+                      placeholder="اسم المستخدم"
+                    />
+                  </div>
+
+                  <div class="field">
+                    <label>كلمة المرور</label>
+                    <input
+                      id="newPassword"
+                      type="password"
+                      placeholder="كلمة المرور"
+                    />
+                  </div>
+
+                  <div class="field">
+                    <label>اسم الموظف</label>
+                    <input
+                      id="newName"
+                      type="text"
+                      placeholder="اسم الموظف"
+                    />
+                  </div>
+
+                  <div class="field">
+                    <label>الصلاحية</label>
+
+                    <select id="newRole">
+
+                      <option value="employee">
+                        موظف
+                      </option>
+
+                      <option value="manager">
+                        مدير
+                      </option>
+
+                      <option value="admin">
+                        Admin
+                      </option>
+
+                    </select>
+
+                  </div>
+
+                  <div class="actions form-full">
+
+                    <button
+                      type="submit"
+                      class="btn btn-green"
+                    >
+                      إضافة الموظف
+                    </button>
+
+                  </div>
+
+                </div>
+
+              </form>
+
+            </div>
+
+
+            <div class="panel">
+
+              <div class="panel-title">
+                قائمة الموظفين
+              </div>
+
+              <div class="table-wrap">
+
+                <table class="table">
+
+                  <thead>
+
+                    <tr>
+                      <th>الاسم</th>
+                      <th>اسم المستخدم</th>
+                      <th>الصلاحية</th>
+                      <th>الحالة</th>
+                      <th>الإجراء</th>
+                    </tr>
+
+                  </thead>
+
+                  <tbody id="usersTable">
+
+                    <tr>
+                      <td
+                        colspan="5"
+                        class="loading"
+                      >
+                        جاري التحميل...
+                      </td>
+                    </tr>
+
+                  </tbody>
+
+                </table>
+
+              </div>
+
+            </div>
+
+          </section>
+
+
+        </div>
+      </main>
+
     </div>
 
-    <div style="display:flex;gap:10px;align-items:center">
-      <button id="langBtn" class="ghost" type="button">English</button>
+  </section>
 
-      <button class="primary" onclick="showReportForm()">
-        + ريبورت جديد
-      </button>
-    </div>
 
-  </div>
-
-<section id="dashboard" class="page">
-
-<div class="grid">
-
-  <div class="stat">
-    إجمالي الريبورتات
-    <b id="sReports">0</b>
-  </div>
-
-  <div class="stat">
-    قيد المراجعة
-    <b id="sPending">0</b>
-  </div>
-
-  <div class="stat">
-    المهام المفتوحة
-    <b id="sTasks">0</b>
-  </div>
-
-  <div class="stat">
-    الموظفون النشطون
-    <b id="sEmployees">0</b>
-  </div>
-
-</div>
-
-<div class="panel">
-
-<h3>عن النظام</h3>
-
-<p>
-نظام داخلي لإدارة الموظفين والريبورتات والمهام والعملاء.
-كل مستخدم يرى ما تسمح به صلاحياته.
-</p>
-
-</div>
-
-</section>
-
-
-<section id="reports" class="page hidden">
-
-<div class="panel hidden" id="reportForm">
-
-<h3>إضافة Daily Report</h3>
-
-<form id="reportAdd">
-
-<div class="row">
-
-<div>
-<label>العنوان</label>
-<input name="title" required>
-</div>
-
-<div>
-<label>التاريخ</label>
-<input type="date" name="report_date" required>
-</div>
-
-<div>
-<label>العميل</label>
-<input name="client">
-</div>
-
-<div>
-<label>المشروع</label>
-<input name="project">
-</div>
-
-<div>
-<label>نوع الزيارة/المهمة</label>
-
-<select name="visit_type">
-<option>زيارة عميل</option>
-<option>متابعة مشروع</option>
-<option>اجتماع</option>
-<option>مهمة إدارية</option>
-<option>أخرى</option>
-</select>
-
-</div>
-
-<div>
-<label>مرفق</label>
-<input type="file" name="attachment">
-</div>
-
-</div>
-
-<label>تفاصيل العمل</label>
-
-<textarea name="description" rows="5" required></textarea>
-
-<button class="primary">حفظ التقرير</button>
-
-<button type="button" class="ghost" onclick="hideReportForm()">إلغاء</button>
-
-</form>
-
-</div>
-
-
-<div class="panel">
-
-<div class="top">
-
-<h3>الريبورتات</h3>
-
-<button class="ghost" onclick="location='/api/reports/export'">
-⬇ تصدير CSV / Excel
-</button>
-
-</div>
-
-<div id="reportsTable"></div>
-
-</div>
-
-</section>
-
-
-<section id="tasks" class="page hidden">
-
-<div class="panel adminOnly">
-
-<h3>إضافة مهمة</h3>
-
-<form id="taskAdd">
-
-<div class="row">
-
-<div>
-<label>الموظف</label>
-<select name="assigned_to" id="taskUser"></select>
-</div>
-
-<div>
-<label>عنوان المهمة</label>
-<input name="title" required>
-</div>
-
-<div>
-<label>تاريخ الاستحقاق</label>
-<input type="date" name="due_date">
-</div>
-
-<div>
-<label>الأولوية</label>
-
-<select name="priority">
-<option value="low">منخفضة</option>
-<option value="medium" selected>متوسطة</option>
-<option value="high">عالية</option>
-</select>
-
-</div>
-
-</div>
-
-<button class="primary">إضافة</button>
-
-</form>
-
-</div>
-
-
-<div class="panel">
-
-<h3>المهام</h3>
-
-<div id="tasksTable"></div>
-
-</div>
-
-</section>
-
-
-<section id="clients" class="page hidden">
-
-<div class="panel adminOnly">
-
-<h3>إضافة عميل</h3>
-
-<form id="clientAdd">
-
-<div class="row">
-
-<div>
-<label>اسم العميل</label>
-<input name="name" required>
-</div>
-
-<div>
-<label>جهة الاتصال</label>
-<input name="contact">
-</div>
-
-<div>
-<label>الهاتف</label>
-<input name="phone">
-</div>
-
-<div>
-<label>ملاحظات</label>
-<input name="notes">
-</div>
-
-</div>
-
-<button class="primary">إضافة</button>
-
-</form>
-
-</div>
-
-
-<div class="panel">
-
-<h3>العملاء</h3>
-
-<div id="clientsTable"></div>
-
-</div>
-
-</section>
-
-
-<section id="users" class="page hidden">
-
-<div class="panel">
-
-<h3>إنشاء حساب موظف</h3>
-
-<form id="userAdd">
-
-<div class="row">
-
-<div>
-<label>الاسم</label>
-<input name="name" required>
-</div>
-
-<div>
-<label>اسم المستخدم</label>
-<input name="username" required>
-</div>
-
-<div>
-<label>كلمة المرور</label>
-<input name="password" required>
-</div>
-
-<div>
-<label>الصلاحية</label>
-
-<select name="role">
-<option value="employee">موظف</option>
-<option value="manager">Manager</option>
-<option value="admin">Admin</option>
-</select>
-
-</div>
-
-</div>
-
-<button class="primary">إنشاء الحساب</button>
-
-</form>
-
-</div>
-
-
-<div class="panel">
-
-<h3>الحسابات</h3>
-
-<div id="usersTable"></div>
-
-</div>
-
-</section>
-
-</main>
-
-</div>
-
-<script src="/app.js"></script>
+  <!-- APP JS -->
+  <script src="/app.js"></script>
 
 </body>
 </html>
