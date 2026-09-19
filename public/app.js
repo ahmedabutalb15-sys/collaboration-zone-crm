@@ -1,298 +1,98 @@
-let me = null;
-
 const $ = id => document.getElementById(id);
 
-let currentLang = localStorage.getItem("crmLang") || "ar";
+let me = null;
+let currentLang = localStorage.getItem("cz_lang") || "ar";
 
 const translations = {
   ar: {
-    langBtn: "English",
     pageTitles: {
       dashboard: "لوحة التحكم",
       reports: "الريبورتات",
       tasks: "المهام",
       clients: "العملاء",
-      users: "الموظفين والحسابات"
+      users: "الموظفين والحسابات",
+      attendance: "الحضور والانصراف"
     },
 
-    login: {
-      username: "اسم المستخدم",
-      password: "كلمة المرور",
-      login: "دخول"
-    },
-
-    sidebar: {
+    side: {
       dashboard: "📊 لوحة التحكم",
       reports: "📝 الريبورتات",
       tasks: "✅ المهام",
       clients: "👥 العملاء",
       users: "🔐 الموظفين والحسابات",
+      attendance: "🕐 الحضور والانصراف",
       logout: "🚪 تسجيل خروج"
     },
 
-    dashboard: {
-      reports: "إجمالي الريبورتات",
-      pending: "قيد المراجعة",
-      tasks: "المهام المفتوحة",
-      employees: "الموظفون النشطون",
-      about: "عن النظام",
-      aboutText:
-        "نظام داخلي لإدارة الموظفين والريبورتات والمهام والعملاء. كل مستخدم يرى ما تسمح به صلاحياته."
-    },
-
-    common: {
-      newReport: "+ ريبورت جديد",
-      add: "إضافة",
-      cancel: "إلغاء",
-      saveReport: "حفظ التقرير",
-      export: "⬇ تصدير CSV / Excel",
-      employee: "الموظف",
-      title: "العنوان",
-      date: "التاريخ",
-      client: "العميل",
-      project: "المشروع",
-      details: "التفاصيل",
+    attendance: {
+      title: "الحضور والانصراف",
+      today: "حضور اليوم",
+      checkIn: "🟢 تسجيل حضور",
+      checkOut: "🔴 تسجيل انصراف",
+      checkInTime: "وقت الحضور",
+      checkOutTime: "وقت الانصراف",
+      hours: "ساعات العمل",
       status: "الحالة",
-      action: "إجراء",
-      name: "الاسم",
-      username: "اسم المستخدم",
-      password: "كلمة المرور",
-      phone: "الهاتف",
-      notes: "ملاحظات"
-    },
-
-    reports: {
-      addTitle: "إضافة Daily Report",
-      reports: "الريبورتات",
-      title: "العنوان",
+      notCheckedIn: "لم يتم تسجيل الحضور",
+      working: "موجود حالياً",
+      completed: "تم إنهاء اليوم",
+      noCheckout: "لم يتم تسجيل الانصراف",
+      adminTitle: "سجل حضور الموظفين",
       date: "التاريخ",
-      client: "العميل",
-      project: "المشروع",
-      visitType: "نوع الزيارة/المهمة",
-      attachment: "مرفق",
-      description: "تفاصيل العمل",
-
-      visitTypes: [
-        "زيارة عميل",
-        "متابعة مشروع",
-        "اجتماع",
-        "مهمة إدارية",
-        "أخرى"
-      ],
-
-      table: {
-        date: "التاريخ",
-        employee: "الموظف",
-        title: "العنوان",
-        client: "العميل",
-        project: "المشروع",
-        details: "التفاصيل",
-        status: "الحالة",
-        action: "إجراء"
-      },
-
-      approved: "معتمد",
-      rejected: "مرفوض",
-      pending: "قيد المراجعة",
-      approve: "اعتماد",
-      reject: "رفض",
-      saved: "تم حفظ الريبورت"
-    },
-
-    tasks: {
-      addTitle: "إضافة مهمة",
-      tasks: "المهام",
       employee: "الموظف",
-      title: "عنوان المهمة",
-      dueDate: "تاريخ الاستحقاق",
-      priority: "الأولوية",
-      low: "منخفضة",
-      medium: "متوسطة",
-      high: "عالية",
-      tableTask: "المهمة",
-      tableEmployee: "الموظف",
-      tableDue: "الاستحقاق",
-      tablePriority: "الأولوية",
-      tableStatus: "الحالة",
-      completed: "مكتملة",
-      open: "مفتوحة",
-      done: "تم الإنجاز"
-    },
-
-    clients: {
-      addTitle: "إضافة عميل",
-      clients: "العملاء",
-      name: "اسم العميل",
-      contact: "جهة الاتصال",
-      phone: "الهاتف",
-      notes: "ملاحظات"
-    },
-
-    users: {
-      addTitle: "إنشاء حساب موظف",
-      accounts: "الحسابات",
-      name: "الاسم",
       username: "اسم المستخدم",
-      password: "كلمة المرور",
-      role: "الصلاحية",
-      employee: "موظف",
-      manager: "Manager",
-      admin: "Admin",
-      active: "نشط",
-      suspended: "موقوف",
-      activate: "تفعيل",
-      deactivate: "إيقاف",
-      created: "تم إنشاء الحساب"
-    },
-
-    errors: {
-      general: "حدث خطأ"
+      export: "⬇ تصدير الحضور",
+      filter: "عرض التاريخ",
+      all: "كل السجلات",
+      noData: "لا توجد سجلات حضور",
+      successIn: "تم تسجيل الحضور بنجاح",
+      successOut: "تم تسجيل الانصراف بنجاح"
     }
   },
 
   en: {
-    langBtn: "العربية",
-
     pageTitles: {
       dashboard: "Dashboard",
       reports: "Reports",
       tasks: "Tasks",
       clients: "Clients",
-      users: "Employees & Accounts"
+      users: "Employees & Accounts",
+      attendance: "Attendance"
     },
 
-    login: {
-      username: "Username",
-      password: "Password",
-      login: "Login"
-    },
-
-    sidebar: {
+    side: {
       dashboard: "📊 Dashboard",
       reports: "📝 Reports",
       tasks: "✅ Tasks",
       clients: "👥 Clients",
       users: "🔐 Employees & Accounts",
+      attendance: "🕐 Attendance",
       logout: "🚪 Logout"
     },
 
-    dashboard: {
-      reports: "Total Reports",
-      pending: "Pending Review",
-      tasks: "Open Tasks",
-      employees: "Active Employees",
-      about: "About the System",
-      aboutText:
-        "An internal system for managing employees, reports, tasks and clients. Each user can only see what their permissions allow."
-    },
-
-    common: {
-      newReport: "+ New Report",
-      add: "Add",
-      cancel: "Cancel",
-      saveReport: "Save Report",
-      export: "⬇ Export CSV / Excel",
-      employee: "Employee",
-      title: "Title",
-      date: "Date",
-      client: "Client",
-      project: "Project",
-      details: "Details",
+    attendance: {
+      title: "Attendance",
+      today: "Today's Attendance",
+      checkIn: "🟢 Check In",
+      checkOut: "🔴 Check Out",
+      checkInTime: "Check In",
+      checkOutTime: "Check Out",
+      hours: "Working Hours",
       status: "Status",
-      action: "Action",
-      name: "Name",
-      username: "Username",
-      password: "Password",
-      phone: "Phone",
-      notes: "Notes"
-    },
-
-    reports: {
-      addTitle: "Add Daily Report",
-      reports: "Reports",
-      title: "Title",
+      notCheckedIn: "Not checked in",
+      working: "Currently working",
+      completed: "Day completed",
+      noCheckout: "No check out yet",
+      adminTitle: "Employees Attendance",
       date: "Date",
-      client: "Client",
-      project: "Project",
-      visitType: "Visit / Task Type",
-      attachment: "Attachment",
-      description: "Work Details",
-
-      visitTypes: [
-        "Client Visit",
-        "Project Follow-up",
-        "Meeting",
-        "Administrative Task",
-        "Other"
-      ],
-
-      table: {
-        date: "Date",
-        employee: "Employee",
-        title: "Title",
-        client: "Client",
-        project: "Project",
-        details: "Details",
-        status: "Status",
-        action: "Action"
-      },
-
-      approved: "Approved",
-      rejected: "Rejected",
-      pending: "Pending Review",
-      approve: "Approve",
-      reject: "Reject",
-      saved: "Report saved successfully"
-    },
-
-    tasks: {
-      addTitle: "Add Task",
-      tasks: "Tasks",
       employee: "Employee",
-      title: "Task Title",
-      dueDate: "Due Date",
-      priority: "Priority",
-      low: "Low",
-      medium: "Medium",
-      high: "High",
-      tableTask: "Task",
-      tableEmployee: "Employee",
-      tableDue: "Due Date",
-      tablePriority: "Priority",
-      tableStatus: "Status",
-      completed: "Completed",
-      open: "Open",
-      done: "Mark as Done"
-    },
-
-    clients: {
-      addTitle: "Add Client",
-      clients: "Clients",
-      name: "Client Name",
-      contact: "Contact Person",
-      phone: "Phone",
-      notes: "Notes"
-    },
-
-    users: {
-      addTitle: "Create Employee Account",
-      accounts: "Accounts",
-      name: "Name",
       username: "Username",
-      password: "Password",
-      role: "Role",
-      employee: "Employee",
-      manager: "Manager",
-      admin: "Admin",
-      active: "Active",
-      suspended: "Suspended",
-      activate: "Activate",
-      deactivate: "Deactivate",
-      created: "Account created successfully"
-    },
-
-    errors: {
-      general: "An error occurred"
+      export: "⬇ Export Attendance",
+      filter: "View Date",
+      all: "All records",
+      noData: "No attendance records",
+      successIn: "Attendance recorded successfully",
+      successOut: "Check out recorded successfully"
     }
   }
 };
@@ -301,1100 +101,1135 @@ function t() {
   return translations[currentLang];
 }
 
+// =========================
+// API helper
+// =========================
 
-/* =========================
-   LANGUAGE
-========================= */
+async function api(url, options = {}) {
+  const res = await fetch(url, options);
+
+  let data = null;
+
+  try {
+    data = await res.json();
+  } catch {
+    data = null;
+  }
+
+  if (!res.ok) {
+    throw new Error(
+      data?.error ||
+      (currentLang === "ar"
+        ? "حدث خطأ"
+        : "Something went wrong")
+    );
+  }
+
+  return data;
+}
+
+// =========================
+// Boot
+// =========================
+
+async function boot() {
+  try {
+    me = await api("/api/me");
+
+    if (!me) {
+      $("login").style.display = "grid";
+      $("app").style.display = "none";
+      return;
+    }
+
+    $("login").style.display = "none";
+    $("app").style.display = "block";
+
+    if (!["admin", "manager"].includes(me.role)) {
+      document.querySelectorAll(".adminOnly").forEach(el => {
+        el.style.display = "none";
+      });
+    }
+
+    $("who").textContent =
+      currentLang === "ar"
+        ? `مرحباً ${me.name}`
+        : `Welcome ${me.name}`;
+
+    updateLanguage();
+
+    await loadDashboard();
+    await loadReports();
+    await loadTasks();
+    await loadClients();
+    await loadAttendance();
+
+    if (["admin", "manager"].includes(me.role)) {
+      await loadUsers();
+      await loadAdminAttendance();
+    }
+
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+// =========================
+// Language
+// =========================
 
 function updateLanguage() {
-
-  const lang = t();
-
   document.documentElement.lang = currentLang;
   document.documentElement.dir =
     currentLang === "ar" ? "rtl" : "ltr";
 
-  $("langBtn").textContent = lang.langBtn;
-
-  applyStaticTranslations();
-
-  const activePage =
-    document.querySelector(".page:not(.hidden)");
-
-  if (activePage) {
-    const pageId = activePage.id;
-
-    $("pageTitle").textContent =
-      lang.pageTitles[pageId] || "";
-  }
-
-  if (me) {
-    $("who").textContent =
-      currentLang === "ar"
-        ? `${me.name} — ${me.role}`
-        : `${me.name} — ${me.role}`;
-  }
-
-  if (me) {
-    loadReports();
-    loadTasks();
-    loadClients();
-
-    if (["admin", "manager"].includes(me.role)) {
-      loadUsers();
-    }
-  }
-}
-
-
-function applyStaticTranslations() {
-
-  const lang = t();
-
-  /* LOGIN */
-
-  const loginLabels =
-    document.querySelectorAll("#loginForm label");
-
-  if (loginLabels[0])
-    loginLabels[0].textContent = lang.login.username;
-
-  if (loginLabels[1])
-    loginLabels[1].textContent = lang.login.password;
-
-  const loginButton =
-    document.querySelector("#loginForm button");
-
-  if (loginButton)
-    loginButton.textContent = lang.login.login;
-
-
-  /* SIDEBAR */
-
   const sideButtons =
     document.querySelectorAll(".side button[data-page]");
 
-  if (sideButtons[0])
-    sideButtons[0].textContent = lang.sidebar.dashboard;
+  sideButtons.forEach(btn => {
+    const page = btn.dataset.page;
 
-  if (sideButtons[1])
-    sideButtons[1].textContent = lang.sidebar.reports;
-
-  if (sideButtons[2])
-    sideButtons[2].textContent = lang.sidebar.tasks;
-
-  if (sideButtons[3])
-    sideButtons[3].textContent = lang.sidebar.clients;
-
-  if (sideButtons[4])
-    sideButtons[4].textContent = lang.sidebar.users;
-
-  $("logout").textContent = lang.sidebar.logout;
-
-
-  /* NEW REPORT */
-
-  const newReportButton =
-    document.querySelector('.top button[onclick="showReportForm()"]');
-
-  if (newReportButton)
-    newReportButton.textContent = lang.common.newReport;
-
-
-  /* DASHBOARD */
-
-  const stats =
-    document.querySelectorAll("#dashboard .stat");
-
-  if (stats[0])
-    stats[0].firstChild.nodeValue =
-      lang.dashboard.reports + " ";
-
-  if (stats[1])
-    stats[1].firstChild.nodeValue =
-      lang.dashboard.pending + " ";
-
-  if (stats[2])
-    stats[2].firstChild.nodeValue =
-      lang.dashboard.tasks + " ";
-
-  if (stats[3])
-    stats[3].firstChild.nodeValue =
-      lang.dashboard.employees + " ";
-
-  const dashboardH3 =
-    document.querySelector("#dashboard .panel h3");
-
-  if (dashboardH3)
-    dashboardH3.textContent = lang.dashboard.about;
-
-  const dashboardP =
-    document.querySelector("#dashboard .panel p");
-
-  if (dashboardP)
-    dashboardP.textContent = lang.dashboard.aboutText;
-
-
-  /* REPORT FORM */
-
-  const reportForm =
-    $("reportForm");
-
-  if (reportForm) {
-
-    const h3 =
-      reportForm.querySelector("h3");
-
-    if (h3)
-      h3.textContent = lang.reports.addTitle;
-
-    const labels =
-      reportForm.querySelectorAll("label");
-
-    if (labels[0]) labels[0].textContent = lang.reports.title;
-    if (labels[1]) labels[1].textContent = lang.reports.date;
-    if (labels[2]) labels[2].textContent = lang.reports.client;
-    if (labels[3]) labels[3].textContent = lang.reports.project;
-    if (labels[4]) labels[4].textContent = lang.reports.visitType;
-    if (labels[5]) labels[5].textContent = lang.reports.attachment;
-    if (labels[6]) labels[6].textContent = lang.reports.description;
-
-    const visitSelect =
-      reportForm.querySelector('select[name="visit_type"]');
-
-    if (visitSelect) {
-
-      [...visitSelect.options].forEach(
-        (option, index) => {
-          option.textContent =
-            lang.reports.visitTypes[index];
-        }
-      );
-
+    if (t().side[page]) {
+      btn.textContent = t().side[page];
     }
+  });
 
-    const buttons =
-      reportForm.querySelectorAll("button");
+  const logout = $("logout");
 
-    if (buttons[0])
-      buttons[0].textContent = lang.common.saveReport;
-
-    if (buttons[1])
-      buttons[1].textContent = lang.common.cancel;
+  if (logout) {
+    logout.textContent = t().side.logout;
   }
 
+  const currentPage =
+    document.querySelector(".page:not(.hidden)")?.id ||
+    "dashboard";
 
-  /* REPORTS PANEL */
-
-  const reportsPanel =
-    document.querySelector("#reports > .panel:last-child");
-
-  if (reportsPanel) {
-
-    const h3 =
-      reportsPanel.querySelector("h3");
-
-    if (h3)
-      h3.textContent = lang.reports.reports;
-
-    const exportBtn =
-      reportsPanel.querySelector("button");
-
-    if (exportBtn)
-      exportBtn.textContent = lang.common.export;
+  if ($("pageTitle")) {
+    $("pageTitle").textContent =
+      t().pageTitles[currentPage] ||
+      t().pageTitles.dashboard;
   }
 
+  const langBtn = $("langBtn");
 
-  /* TASKS */
-
-  const taskAddPanel =
-    document.querySelector("#tasks .adminOnly");
-
-  if (taskAddPanel) {
-
-    const h3 =
-      taskAddPanel.querySelector("h3");
-
-    if (h3)
-      h3.textContent = lang.tasks.addTitle;
-
-    const labels =
-      taskAddPanel.querySelectorAll("label");
-
-    if (labels[0]) labels[0].textContent = lang.tasks.employee;
-    if (labels[1]) labels[1].textContent = lang.tasks.title;
-    if (labels[2]) labels[2].textContent = lang.tasks.dueDate;
-    if (labels[3]) labels[3].textContent = lang.tasks.priority;
-
-    const priority =
-      taskAddPanel.querySelector('select[name="priority"]');
-
-    if (priority) {
-
-      priority.options[0].textContent = lang.tasks.low;
-      priority.options[1].textContent = lang.tasks.medium;
-      priority.options[2].textContent = lang.tasks.high;
-
-    }
-
-    const button =
-      taskAddPanel.querySelector("button");
-
-    if (button)
-      button.textContent = lang.common.add;
+  if (langBtn) {
+    langBtn.textContent =
+      currentLang === "ar"
+        ? "English"
+        : "العربية";
   }
 
-  const taskPanels =
-    document.querySelectorAll("#tasks .panel");
-
-  const taskListTitle =
-    taskPanels[taskPanels.length - 1]?.querySelector("h3");
-
-  if (taskListTitle)
-    taskListTitle.textContent = lang.tasks.tasks;
-
-
-  /* CLIENTS */
-
-  const clientAddPanel =
-    document.querySelector("#clients .adminOnly");
-
-  if (clientAddPanel) {
-
-    const h3 =
-      clientAddPanel.querySelector("h3");
-
-    if (h3)
-      h3.textContent = lang.clients.addTitle;
-
-    const labels =
-      clientAddPanel.querySelectorAll("label");
-
-    if (labels[0]) labels[0].textContent = lang.clients.name;
-    if (labels[1]) labels[1].textContent = lang.clients.contact;
-    if (labels[2]) labels[2].textContent = lang.clients.phone;
-    if (labels[3]) labels[3].textContent = lang.clients.notes;
-
-    const button =
-      clientAddPanel.querySelector("button");
-
-    if (button)
-      button.textContent = lang.common.add;
-  }
-
-  const clientPanels =
-    document.querySelectorAll("#clients .panel");
-
-  const clientListTitle =
-    clientPanels[clientPanels.length - 1]?.querySelector("h3");
-
-  if (clientListTitle)
-    clientListTitle.textContent = lang.clients.clients;
-
-
-  /* USERS */
-
-  const userPanels =
-    document.querySelectorAll("#users .panel");
-
-  if (userPanels[0]) {
-
-    const h3 =
-      userPanels[0].querySelector("h3");
-
-    if (h3)
-      h3.textContent = lang.users.addTitle;
-
-    const labels =
-      userPanels[0].querySelectorAll("label");
-
-    if (labels[0]) labels[0].textContent = lang.users.name;
-    if (labels[1]) labels[1].textContent = lang.users.username;
-    if (labels[2]) labels[2].textContent = lang.users.password;
-    if (labels[3]) labels[3].textContent = lang.users.role;
-
-    const role =
-      userPanels[0].querySelector('select[name="role"]');
-
-    if (role) {
-      role.options[0].textContent = lang.users.employee;
-      role.options[1].textContent = lang.users.manager;
-      role.options[2].textContent = lang.users.admin;
-    }
-
-    const button =
-      userPanels[0].querySelector("button");
-
-    if (button)
-      button.textContent = lang.common.add;
-  }
-
-  if (userPanels[1]) {
-
-    const h3 =
-      userPanels[1].querySelector("h3");
-
-    if (h3)
-      h3.textContent = lang.users.accounts;
-  }
+  renderAttendanceLabels();
 }
 
+// =========================
+// Navigation
+// =========================
+
+document.addEventListener("click", async e => {
+  const btn = e.target.closest("[data-page]");
+
+  if (!btn) return;
+
+  const page = btn.dataset.page;
+
+  document.querySelectorAll(".page").forEach(section => {
+    section.classList.add("hidden");
+  });
+
+  const target = $(page);
+
+  if (target) {
+    target.classList.remove("hidden");
+  }
+
+  document
+    .querySelectorAll(".side button[data-page]")
+    .forEach(b => b.classList.remove("active"));
+
+  btn.classList.add("active");
+
+  if ($("pageTitle")) {
+    $("pageTitle").textContent =
+      t().pageTitles[page] ||
+      page;
+  }
+
+  if (page === "attendance") {
+    await loadAttendance();
+
+    if (["admin", "manager"].includes(me.role)) {
+      await loadAdminAttendance();
+    }
+  }
+});
+
+// =========================
+// Language button
+// =========================
 
 $("langBtn")?.addEventListener("click", () => {
-
   currentLang =
-    currentLang === "ar" ? "en" : "ar";
+    currentLang === "ar"
+      ? "en"
+      : "ar";
 
   localStorage.setItem(
-    "crmLang",
+    "cz_lang",
     currentLang
   );
 
   updateLanguage();
 
+  loadDashboard();
+  loadReports();
+  loadTasks();
+  loadClients();
+  loadAttendance();
+
+  if (["admin", "manager"].includes(me?.role)) {
+    loadUsers();
+    loadAdminAttendance();
+  }
 });
 
+// =========================
+// Login
+// =========================
 
-/* =========================
-   API
-========================= */
+$("loginForm")?.addEventListener("submit", async e => {
+  e.preventDefault();
 
-async function api(url, opt = {}) {
-
-  const r = await fetch(url, opt);
-
-  const d =
-    await r.json().catch(() => ({}));
-
-  if (!r.ok)
-    throw new Error(
-      d.error || t().errors.general
-    );
-
-  return d;
-}
-
-
-function esc(x) {
-
-  return String(x ?? "").replace(
-    /[&<>"']/g,
-    m => ({
-      "&": "&amp;",
-      "<": "&lt;",
-      ">": "&gt;",
-      '"': "&quot;",
-      "'": "&#39;"
-    }[m])
-  );
-
-}
-
-
-/* =========================
-   BOOT
-========================= */
-
-async function boot() {
+  $("loginErr").classList.add("hidden");
 
   try {
-
-    me = await api("/api/me");
-
-    if (!me)
-      return;
-
-    $("login").style.display = "none";
-    $("app").style.display = "block";
-
-    $("who").textContent =
-      `${me.name} — ${me.role}`;
-
-    if (!["admin", "manager"].includes(me.role)) {
-
-      document
-        .querySelectorAll(".adminOnly")
-        .forEach(x =>
-          x.classList.add("hidden")
-        );
-
-    }
-
-    updateLanguage();
-
-    loadDashboard();
-    loadReports();
-    loadTasks();
-    loadClients();
-
-    if (["admin", "manager"].includes(me.role))
-      loadUsers();
-
-  } catch (e) {
-
-    console.log(e);
-
-  }
-
-}
-
-
-/* =========================
-   PAGES
-========================= */
-
-document
-  .querySelectorAll("[data-page]")
-  .forEach(b => {
-
-    b.onclick = () =>
-      showPage(
-        b.dataset.page,
-        b
-      );
-
-  });
-
-
-function showPage(p, b) {
-
-  document
-    .querySelectorAll(".page")
-    .forEach(x =>
-      x.classList.add("hidden")
-    );
-
-  $(p).classList.remove("hidden");
-
-  document
-    .querySelectorAll("[data-page]")
-    .forEach(x =>
-      x.classList.remove("active")
-    );
-
-  b?.classList.add("active");
-
-  $("pageTitle").textContent =
-    t().pageTitles[p];
-
-}
-
-
-/* =========================
-   DASHBOARD
-========================= */
-
-async function loadDashboard() {
-
-  const d =
-    await api("/api/dashboard");
-
-  $("sReports").textContent =
-    d.reports;
-
-  $("sPending").textContent =
-    d.pending;
-
-  $("sTasks").textContent =
-    d.tasks;
-
-  $("sEmployees").textContent =
-    d.employees;
-
-}
-
-
-/* =========================
-   REPORT FORM
-========================= */
-
-function showReportForm() {
-
-  showPage(
-    "reports",
-    document.querySelector(
-      '[data-page="reports"]'
-    )
-  );
-
-  $("reportForm")
-    .classList.remove("hidden");
-
-}
-
-
-function hideReportForm() {
-
-  $("reportForm")
-    .classList.add("hidden");
-
-}
-
-
-/* =========================
-   REPORTS
-========================= */
-
-async function loadReports() {
-
-  const rows =
-    await api("/api/reports");
-
-  const lang =
-    t().reports;
-
-  $("reportsTable").innerHTML = `
-
-    <table class="table">
-
-      <tr>
-        <th>${lang.table.date}</th>
-        <th>${lang.table.employee}</th>
-        <th>${lang.table.title}</th>
-        <th>${lang.table.client}</th>
-        <th>${lang.table.project}</th>
-        <th>${lang.table.details}</th>
-        <th>${lang.table.status}</th>
-        <th>${lang.table.action}</th>
-      </tr>
-
-      ${rows.map(r => `
-
-        <tr>
-
-          <td>${esc(r.report_date)}</td>
-
-          <td>${esc(r.user_name)}</td>
-
-          <td>${esc(r.title)}</td>
-
-          <td>${esc(r.client)}</td>
-
-          <td>${esc(r.project)}</td>
-
-          <td>${esc(r.description)}</td>
-
-          <td>
-            <span class="badge ${r.status}">
-              ${
-                r.status === "approved"
-                  ? lang.approved
-                  : r.status === "rejected"
-                    ? lang.rejected
-                    : lang.pending
-              }
-            </span>
-          </td>
-
-          <td>
-
-            ${
-              ["admin", "manager"].includes(me.role)
-                ? `
-                  <button
-                    class="ghost"
-                    onclick="setStatus(${r.id},'approved')"
-                  >
-                    ${lang.approve}
-                  </button>
-
-                  <button
-                    class="danger"
-                    onclick="setStatus(${r.id},'rejected')"
-                  >
-                    ${lang.reject}
-                  </button>
-                `
-                : ""
-            }
-
-          </td>
-
-        </tr>
-
-      `).join("")}
-
-    </table>
-
-  `;
-
-}
-
-
-async function setStatus(id, status) {
-
-  await api(
-    `/api/reports/${id}/status`,
-    {
+    me = await api("/api/login", {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
       },
       body: JSON.stringify({
-        status
+        username: $("username").value.trim(),
+        password: $("password").value
       })
-    }
-  );
-
-  loadReports();
-  loadDashboard();
-
-}
-
-
-/* =========================
-   ADD REPORT
-========================= */
-
-$("reportAdd").onsubmit = async e => {
-
-  e.preventDefault();
-
-  try {
-
-    await fetch(
-      "/api/reports",
-      {
-        method: "POST",
-        body: new FormData(e.target)
-      }
-    ).then(async r => {
-
-      if (!r.ok)
-        throw new Error(
-          (await r.json()).error
-        );
-
     });
 
-    e.target.reset();
+    $("login").style.display = "none";
+    $("app").style.display = "block";
 
-    hideReportForm();
+    document.querySelectorAll(".adminOnly").forEach(el => {
+      el.style.display =
+        ["admin", "manager"].includes(me.role)
+          ? ""
+          : "none";
+    });
 
-    loadReports();
-    loadDashboard();
+    $("who").textContent =
+      currentLang === "ar"
+        ? `مرحباً ${me.name}`
+        : `Welcome ${me.name}`;
 
-    alert(t().reports.saved);
+    updateLanguage();
 
-  } catch (x) {
+    await loadDashboard();
+    await loadReports();
+    await loadTasks();
+    await loadClients();
+    await loadAttendance();
 
-    alert(x.message);
+    if (["admin", "manager"].includes(me.role)) {
+      await loadUsers();
+      await loadAdminAttendance();
+    }
 
+  } catch (error) {
+    $("loginErr").textContent = error.message;
+    $("loginErr").classList.remove("hidden");
   }
-
-};
-
-
-/* =========================
-   USERS
-========================= */
-
-async function loadUsers() {
-
-  const rows =
-    await api("/api/users");
-
-  const lang =
-    t().users;
-
-  $("usersTable").innerHTML = `
-
-    <table class="table">
-
-      <tr>
-        <th>${lang.name}</th>
-        <th>${lang.username}</th>
-        <th>${lang.role}</th>
-        <th>${t().common.status}</th>
-        <th></th>
-      </tr>
-
-      ${rows.map(u => `
-
-        <tr>
-
-          <td>${esc(u.name)}</td>
-
-          <td>${esc(u.username)}</td>
-
-          <td>${esc(
-            u.role === "employee"
-              ? lang.employee
-              : u.role === "manager"
-                ? lang.manager
-                : lang.admin
-          )}</td>
-
-          <td>
-            ${
-              u.active
-                ? lang.active
-                : lang.suspended
-            }
-          </td>
-
-          <td>
-
-            <button
-              class="ghost"
-              onclick="toggleUser(${u.id})"
-            >
-              ${
-                u.active
-                  ? lang.deactivate
-                  : lang.activate
-              }
-            </button>
-
-          </td>
-
-        </tr>
-
-      `).join("")}
-
-    </table>
-
-  `;
-
-
-  $("taskUser").innerHTML =
-    rows
-      .filter(u => u.active)
-      .map(
-        u =>
-          `<option value="${u.id}">
-            ${esc(u.name)}
-          </option>`
-      )
-      .join("");
-
-}
-
-
-async function toggleUser(id) {
-
-  await api(
-    `/api/users/${id}/toggle`,
-    {
-      method: "POST"
-    }
-  );
-
-  loadUsers();
-  loadDashboard();
-
-}
-
-
-$("userAdd").onsubmit = async e => {
-
-  e.preventDefault();
-
-  try {
-
-    await api(
-      "/api/users",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type":
-            "application/json"
-        },
-        body: JSON.stringify(
-          Object.fromEntries(
-            new FormData(e.target)
-          )
-        )
-      }
-    );
-
-    e.target.reset();
-
-    loadUsers();
-    loadDashboard();
-
-    alert(t().users.created);
-
-  } catch (x) {
-
-    alert(x.message);
-
-  }
-
-};
-
-
-/* =========================
-   TASKS
-========================= */
-
-async function loadTasks() {
-
-  const rows =
-    await api("/api/tasks");
-
-  const lang =
-    t().tasks;
-
-  $("tasksTable").innerHTML = `
-
-    <table class="table">
-
-      <tr>
-        <th>${lang.tableTask}</th>
-        <th>${lang.tableEmployee}</th>
-        <th>${lang.tableDue}</th>
-        <th>${lang.tablePriority}</th>
-        <th>${lang.tableStatus}</th>
-        <th></th>
-      </tr>
-
-      ${rows.map(tk => `
-
-        <tr>
-
-          <td>${esc(tk.title)}</td>
-
-          <td>${esc(tk.employee)}</td>
-
-          <td>${esc(tk.due_date || "-")}</td>
-
-          <td>
-            ${
-              tk.priority === "low"
-                ? lang.low
-                : tk.priority === "medium"
-                  ? lang.medium
-                  : lang.high
-            }
-          </td>
-
-          <td>
-            ${
-              tk.status === "done"
-                ? lang.completed
-                : lang.open
-            }
-          </td>
-
-          <td>
-
-            ${
-              tk.status !== "done"
-                ? `
-                  <button
-                    class="ghost"
-                    onclick="doneTask(${tk.id})"
-                  >
-                    ${lang.done}
-                  </button>
-                `
-                : ""
-            }
-
-          </td>
-
-        </tr>
-
-      `).join("")}
-
-    </table>
-
-  `;
-
-}
-
-
-async function doneTask(id) {
-
-  await api(
-    `/api/tasks/${id}/done`,
-    {
-      method: "POST"
-    }
-  );
-
-  loadTasks();
-  loadDashboard();
-
-}
-
-
-$("taskAdd").onsubmit = async e => {
-
-  e.preventDefault();
-
-  await api(
-    "/api/tasks",
-    {
-      method: "POST",
-      headers: {
-        "Content-Type":
-          "application/json"
-      },
-      body: JSON.stringify(
-        Object.fromEntries(
-          new FormData(e.target)
-        )
-      )
-    }
-  );
-
-  e.target.reset();
-
-  loadTasks();
-  loadDashboard();
-
-};
-
-
-/* =========================
-   CLIENTS
-========================= */
-
-async function loadClients() {
-
-  const rows =
-    await api("/api/clients");
-
-  const lang =
-    t().clients;
-
-  $("clientsTable").innerHTML = `
-
-    <table class="table">
-
-      <tr>
-        <th>${lang.name}</th>
-        <th>${lang.contact}</th>
-        <th>${lang.phone}</th>
-        <th>${lang.notes}</th>
-      </tr>
-
-      ${rows.map(c => `
-
-        <tr>
-
-          <td>${esc(c.name)}</td>
-
-          <td>${esc(c.contact)}</td>
-
-          <td>${esc(c.phone)}</td>
-
-          <td>${esc(c.notes)}</td>
-
-        </tr>
-
-      `).join("")}
-
-    </table>
-
-  `;
-
-}
-
-
-$("clientAdd").onsubmit = async e => {
-
-  e.preventDefault();
-
-  await api(
-    "/api/clients",
-    {
-      method: "POST",
-      headers: {
-        "Content-Type":
-          "application/json"
-      },
-      body: JSON.stringify(
-        Object.fromEntries(
-          new FormData(e.target)
-        )
-      )
-    }
-  );
-
-  e.target.reset();
-
-  loadClients();
-
-};
-
-
-/* =========================
-   LOGIN
-========================= */
-
-$("loginForm").onsubmit = async e => {
-
-  e.preventDefault();
-
-  $("loginErr")
-    .classList.add("hidden");
-
-  try {
-
-    await api(
-      "/api/login",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type":
-            "application/json"
-        },
-        body: JSON.stringify({
-          username:
-            $("username").value,
-
-          password:
-            $("password").value
-        })
-      }
-    );
-
-    boot();
-
-  } catch (x) {
-
-    $("loginErr").textContent =
-      x.message;
-
-    $("loginErr")
-      .classList.remove("hidden");
-
-  }
-
-};
-
-
-/* =========================
-   LOGOUT
-========================= */
-
-$("logout").onclick = async () => {
-
-  await api(
-    "/api/logout",
-    {
-      method: "POST"
-    }
-  );
+});
+
+// =========================
+// Logout
+// =========================
+
+$("logout")?.addEventListener("click", async () => {
+  await api("/api/logout", {
+    method: "POST"
+  });
 
   location.reload();
+});
 
-};
+// =========================
+// Dashboard
+// =========================
 
+async function loadDashboard() {
+  try {
+    const d = await api("/api/dashboard");
 
-/* =========================
-   START
-========================= */
+    if ($("sReports")) $("sReports").textContent = d.reports;
+    if ($("sPending")) $("sPending").textContent = d.pending;
+    if ($("sTasks")) $("sTasks").textContent = d.tasks;
+    if ($("sEmployees")) $("sEmployees").textContent = d.employees;
 
-boot();
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+// =========================
+// Reports
+// =========================
+
+async function loadReports() {
+  const box = $("reportsTable");
+
+  if (!box) return;
+
+  try {
+    const rows = await api("/api/reports");
+
+    if (!rows.length) {
+      box.innerHTML =
+        `<p class="muted">لا توجد ريبورتات حتى الآن.</p>`;
+      return;
+    }
+
+    box.innerHTML = `
+      <table class="table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>الموظف</th>
+            <th>العنوان</th>
+            <th>التاريخ</th>
+            <th>العميل</th>
+            <th>المشروع</th>
+            <th>النوع</th>
+            <th>الحالة</th>
+            <th>التفاصيل</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          ${rows.map(r => `
+            <tr>
+              <td>${r.id}</td>
+              <td>${escapeHtml(r.user_name || "")}</td>
+              <td>${escapeHtml(r.title)}</td>
+              <td>${escapeHtml(r.report_date)}</td>
+              <td>${escapeHtml(r.client || "")}</td>
+              <td>${escapeHtml(r.project || "")}</td>
+              <td>${escapeHtml(r.visit_type || "")}</td>
+              <td>
+                <span class="badge ${r.status}">
+                  ${escapeHtml(r.status)}
+                </span>
+              </td>
+              <td>${escapeHtml(r.description)}</td>
+            </tr>
+          `).join("")}
+        </tbody>
+      </table>
+    `;
+
+  } catch (error) {
+    box.innerHTML =
+      `<p class="danger">${escapeHtml(error.message)}</p>`;
+  }
+}
+
+function showReportForm() {
+  $("reportForm")?.classList.remove("hidden");
+
+  const dateInput =
+    document.querySelector('#reportAdd input[name="report_date"]');
+
+  if (dateInput && !dateInput.value) {
+    dateInput.value =
+      new Date().toISOString().split("T")[0];
+  }
+}
+
+function hideReportForm() {
+  $("reportForm")?.classList.add("hidden");
+}
+
+$("reportAdd")?.addEventListener("submit", async e => {
+  e.preventDefault();
+
+  try {
+    const formData =
+      new FormData($("reportAdd"));
+
+    await api("/api/reports", {
+      method: "POST",
+      body: formData
+    });
+
+    $("reportAdd").reset();
+    hideReportForm();
+
+    await loadReports();
+    await loadDashboard();
+
+    alert(
+      currentLang === "ar"
+        ? "تم حفظ التقرير"
+        : "Report saved"
+    );
+
+  } catch (error) {
+    alert(error.message);
+  }
+});
+
+// =========================
+// Users
+// =========================
+
+async function loadUsers() {
+  const box = $("usersTable");
+
+  if (!box) return;
+
+  try {
+    const rows = await api("/api/users");
+
+    box.innerHTML = `
+      <table class="table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>الاسم</th>
+            <th>اسم المستخدم</th>
+            <th>الصلاحية</th>
+            <th>الحالة</th>
+            <th>إجراء</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          ${rows.map(u => `
+            <tr>
+              <td>${u.id}</td>
+              <td>${escapeHtml(u.name)}</td>
+              <td>${escapeHtml(u.username)}</td>
+              <td>${escapeHtml(u.role)}</td>
+              <td>
+                <span class="badge ${
+                  Number(u.active)
+                    ? "approved"
+                    : "rejected"
+                }">
+                  ${
+                    Number(u.active)
+                      ? "نشط"
+                      : "متوقف"
+                  }
+                </span>
+              </td>
+              <td>
+                <button
+                  class="${
+                    Number(u.active)
+                      ? "danger"
+                      : "primary"
+                  }"
+                  onclick="toggleUser(${u.id})"
+                >
+                  ${
+                    Number(u.active)
+                      ? "إيقاف"
+                      : "تفعيل"
+                  }
+                </button>
+              </td>
+            </tr>
+          `).join("")}
+        </tbody>
+      </table>
+    `;
+
+    const select = $("taskUser");
+
+    if (select) {
+      select.innerHTML = rows
+        .filter(u => Number(u.active))
+        .map(u =>
+          `<option value="${u.id}">
+            ${escapeHtml(u.name)}
+          </option>`
+        )
+        .join("");
+    }
+
+  } catch (error) {
+    box.innerHTML =
+      `<p class="danger">${escapeHtml(error.message)}</p>`;
+  }
+}
+
+async function toggleUser(id) {
+  try {
+    await api(`/api/users/${id}/toggle`, {
+      method: "POST"
+    });
+
+    await loadUsers();
+
+  } catch (error) {
+    alert(error.message);
+  }
+}
+
+window.toggleUser = toggleUser;
+
+$("userAdd")?.addEventListener("submit", async e => {
+  e.preventDefault();
+
+  const form =
+    Object.fromEntries(
+      new FormData($("userAdd")).entries()
+    );
+
+  try {
+    await api("/api/users", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(form)
+    });
+
+    $("userAdd").reset();
+
+    await loadUsers();
+    await loadDashboard();
+
+    alert(
+      currentLang === "ar"
+        ? "تم إنشاء الحساب"
+        : "Account created"
+    );
+
+  } catch (error) {
+    alert(error.message);
+  }
+});
+
+// =========================
+// Tasks
+// =========================
+
+async function loadTasks() {
+  const box = $("tasksTable");
+
+  if (!box) return;
+
+  try {
+    const rows = await api("/api/tasks");
+
+    if (!rows.length) {
+      box.innerHTML =
+        `<p class="muted">لا توجد مهام.</p>`;
+      return;
+    }
+
+    box.innerHTML = `
+      <table class="table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>الموظف</th>
+            <th>المهمة</th>
+            <th>الاستحقاق</th>
+            <th>الأولوية</th>
+            <th>الحالة</th>
+            <th>إجراء</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          ${rows.map(t => `
+            <tr>
+              <td>${t.id}</td>
+              <td>${escapeHtml(t.employee)}</td>
+              <td>${escapeHtml(t.title)}</td>
+              <td>${escapeHtml(t.due_date || "")}</td>
+              <td>${escapeHtml(t.priority)}</td>
+              <td>${escapeHtml(t.status)}</td>
+              <td>
+                ${
+                  t.status !== "done"
+                    ? `
+                      <button
+                        class="primary"
+                        onclick="doneTask(${t.id})"
+                      >
+                        تم
+                      </button>
+                    `
+                    : "✓"
+                }
+              </td>
+            </tr>
+          `).join("")}
+        </tbody>
+      </table>
+    `;
+
+  } catch (error) {
+    box.innerHTML =
+      `<p class="danger">${escapeHtml(error.message)}</p>`;
+  }
+}
+
+async function doneTask(id) {
+  try {
+    await api(`/api/tasks/${id}/done`, {
+      method: "POST"
+    });
+
+    await loadTasks();
+    await loadDashboard();
+
+  } catch (error) {
+    alert(error.message);
+  }
+}
+
+window.doneTask = doneTask;
+
+$("taskAdd")?.addEventListener("submit", async e => {
+  e.preventDefault();
+
+  const form =
+    Object.fromEntries(
+      new FormData($("taskAdd")).entries()
+    );
+
+  try {
+    await api("/api/tasks", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(form)
+    });
+
+    $("taskAdd").reset();
+
+    await loadTasks();
+    await loadDashboard();
+
+    alert(
+      currentLang === "ar"
+        ? "تمت إضافة المهمة"
+        : "Task added"
+    );
+
+  } catch (error) {
+    alert(error.message);
+  }
+});
+
+// =========================
+// Clients
+// =========================
+
+async function loadClients() {
+  const box = $("clientsTable");
+
+  if (!box) return;
+
+  try {
+    const rows = await api("/api/clients");
+
+    if (!rows.length) {
+      box.innerHTML =
+        `<p class="muted">لا يوجد عملاء.</p>`;
+      return;
+    }
+
+    box.innerHTML = `
+      <table class="table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>اسم العميل</th>
+            <th>جهة الاتصال</th>
+            <th>الهاتف</th>
+            <th>ملاحظات</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          ${rows.map(c => `
+            <tr>
+              <td>${c.id}</td>
+              <td>${escapeHtml(c.name)}</td>
+              <td>${escapeHtml(c.contact || "")}</td>
+              <td>${escapeHtml(c.phone || "")}</td>
+              <td>${escapeHtml(c.notes || "")}</td>
+            </tr>
+          `).join("")}
+        </tbody>
+      </table>
+    `;
+
+  } catch (error) {
+    box.innerHTML =
+      `<p class="danger">${escapeHtml(error.message)}</p>`;
+  }
+}
+
+$("clientAdd")?.addEventListener("submit", async e => {
+  e.preventDefault();
+
+  const form =
+    Object.fromEntries(
+      new FormData($("clientAdd")).entries()
+    );
+
+  try {
+    await api("/api/clients", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(form)
+    });
+
+    $("clientAdd").reset();
+
+    await loadClients();
+
+    alert(
+      currentLang === "ar"
+        ? "تمت إضافة العميل"
+        : "Client added"
+    );
+
+  } catch (error) {
+    alert(error.message);
+  }
+});
+
+// =========================
+// Attendance
+// =========================
+
+function renderAttendanceLabels() {
+  const title = $("attendanceTitle");
+
+  if (title) {
+    title.textContent = t().attendance.title;
+  }
+
+  const todayTitle = $("attendanceTodayTitle");
+
+  if (todayTitle) {
+    todayTitle.textContent = t().attendance.today;
+  }
+
+  const adminTitle = $("attendanceAdminTitle");
+
+  if (adminTitle) {
+    adminTitle.textContent = t().attendance.adminTitle;
+  }
+
+  const exportBtn = $("attendanceExport");
+
+  if (exportBtn) {
+    exportBtn.textContent = t().attendance.export;
+  }
+
+  const filterLabel = $("attendanceFilterLabel");
+
+  if (filterLabel) {
+    filterLabel.textContent = t().attendance.filter;
+  }
+}
+
+function formatDateTime(value) {
+  if (!value) return "-";
+
+  const d = new Date(value);
+
+  if (Number.isNaN(d.getTime())) {
+    return String(value);
+  }
+
+  return d.toLocaleString(
+    currentLang === "ar"
+      ? "ar-SA"
+      : "en-SA",
+    {
+      timeZone: "Asia/Riyadh",
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit"
+    }
+  );
+}
+
+function formatTime(value) {
+  if (!value) return "-";
+
+  const d = new Date(value);
+
+  if (Number.isNaN(d.getTime())) {
+    return String(value);
+  }
+
+  return d.toLocaleTimeString(
+    currentLang === "ar"
+      ? "ar-SA"
+      : "en-SA",
+    {
+      timeZone: "Asia/Riyadh",
+      hour: "2-digit",
+      minute: "2-digit"
+    }
+  );
+}
+
+async function loadAttendance() {
+  const box = $("attendanceToday");
+
+  if (!box) return;
+
+  try {
+    const record =
+      await api("/api/attendance/today");
+
+    if (!record) {
+      box.innerHTML = `
+        <div class="attendanceStatus">
+          <div class="attendanceIcon">🕐</div>
+
+          <div>
+            <strong>
+              ${escapeHtml(
+                t().attendance.notCheckedIn
+              )}
+            </strong>
+
+            <p class="muted">
+              ${
+                currentLang === "ar"
+                  ? "لم يتم تسجيل حضورك اليوم."
+                  : "You have not checked in today."
+              }
+            </p>
+          </div>
+        </div>
+
+        <button
+          id="checkInBtn"
+          class="primary attendanceBtn"
+          onclick="checkIn()"
+        >
+          ${t().attendance.checkIn}
+        </button>
+      `;
+
+      return;
+    }
+
+    const checkIn =
+      formatTime(record.check_in);
+
+    const checkOut =
+      formatTime(record.check_out);
+
+    let statusText;
+
+    if (!record.check_in) {
+      statusText =
+        t().attendance.notCheckedIn;
+
+    } else if (!record.check_out) {
+      statusText =
+        t().attendance.working;
+
+    } else {
+      statusText =
+        t().attendance.completed;
+    }
+
+    box.innerHTML = `
+      <div class="attendanceStatus">
+        <div class="attendanceIcon">
+          ${
+            record.check_out
+              ? "✅"
+              : "🟢"
+          }
+        </div>
+
+        <div>
+          <strong>${escapeHtml(statusText)}</strong>
+
+          <p class="muted">
+            ${
+              currentLang === "ar"
+                ? `الحضور: ${checkIn}`
+                : `Check in: ${checkIn}`
+            }
+          </p>
+
+          ${
+            record.check_out
+              ? `
+                <p class="muted">
+                  ${
+                    currentLang === "ar"
+                      ? `الانصراف: ${checkOut}`
+                      : `Check out: ${checkOut}`
+                  }
+                </p>
+              `
+              : ""
+          }
+
+          ${
+            record.hours !== null &&
+            record.hours !== undefined
+              ? `
+                <p class="attendanceHours">
+                  ⏱ ${record.hours} ${
+                    currentLang === "ar"
+                      ? "ساعة"
+                      : "hours"
+                  }
+                </p>
+              `
+              : `
+                <p class="muted">
+                  ${t().attendance.noCheckout}
+                </p>
+              `
+          }
+        </div>
+      </div>
+
+      ${
+        record.check_in &&
+        !record.check_out
+          ? `
+            <button
+              id="checkOutBtn"
+              class="danger attendanceBtn"
+              onclick="checkOut()"
+            >
+              ${t().attendance.checkOut}
+            </button>
+          `
+          : ""
+      }
+    `;
+
+  } catch (error) {
+    box.innerHTML =
+      `<p class="danger">${escapeHtml(error.message)}</p>`;
+  }
+}
+
+async function checkIn() {
+  try {
+    await api("/api/attendance/check-in", {
+      method: "POST"
+    });
+
+    await loadAttendance();
+
+    if (currentLang === "ar") {
+      alert(t().attendance.successIn);
+    } else {
+      alert(t().attendance.successIn);
+    }
+
+  } catch (error) {
+    alert(error.message);
+  }
+}
+
+async function checkOut() {
+  if (
+    !confirm(
+      currentLang === "ar"
+        ? "هل تريد تسجيل الانصراف الآن؟"
+        : "Do you want to check out now?"
+    )
+  ) {
+    return;
+  }
+
+  try {
+    await api("/api/attendance/check-out", {
+      method: "POST"
+    });
+
+    await loadAttendance();
+
+    alert(t().attendance.successOut);
+
+    if (["admin", "manager"].includes(me?.role)) {
+      await loadAdminAttendance();
+    }
+
+  } catch (error) {
+    alert(error.message);
+  }
+}
+
+window.checkIn = checkIn;
+window.checkOut = checkOut;
+
+async function loadAdminAttendance() {
+  const box = $("attendanceTable");
+
+  if (!box) return;
+
+  try {
+    const date =
+      $("attendanceDate")?.value || "";
+
+    const url = date
+      ? `/api/attendance?date=${encodeURIComponent(date)}`
+      : "/api/attendance";
+
+    const rows = await api(url);
+
+    if (!rows.length) {
+      box.innerHTML = `
+        <p class="muted">
+          ${escapeHtml(t().attendance.noData)}
+        </p>
+      `;
+      return;
+    }
+
+    box.innerHTML = `
+      <table class="table">
+        <thead>
+          <tr>
+            <th>${t().attendance.date}</th>
+            <th>${t().attendance.employee}</th>
+            <th>${t().attendance.username}</th>
+            <th>${t().attendance.checkInTime}</th>
+            <th>${t().attendance.checkOutTime}</th>
+            <th>${t().attendance.hours}</th>
+            <th>${t().attendance.status}</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          ${rows.map(r => {
+
+            let status = "";
+
+            if (!r.check_in) {
+              status =
+                t().attendance.notCheckedIn;
+            } else if (!r.check_out) {
+              status =
+                t().attendance.working;
+            } else {
+              status =
+                t().attendance.completed;
+            }
+
+            return `
+              <tr>
+                <td>${escapeHtml(String(r.work_date || ""))}</td>
+
+                <td>
+                  ${escapeHtml(r.employee || "")}
+                </td>
+
+                <td>
+                  ${escapeHtml(r.username || "")}
+                </td>
+
+                <td>
+                  ${escapeHtml(formatTime(r.check_in))}
+                </td>
+
+                <td>
+                  ${escapeHtml(formatTime(r.check_out))}
+                </td>
+
+                <td>
+                  ${
+                    r.hours !== null &&
+                    r.hours !== undefined
+                      ? `${escapeHtml(String(r.hours))} ${
+                          currentLang === "ar"
+                            ? "ساعة"
+                            : "h"
+                        }`
+                      : "-"
+                  }
+                </td>
+
+                <td>
+                  <span class="badge ${
+                    r.check_out
+                      ? "approved"
+                      : r.check_in
+                        ? "pending"
+                        : "rejected"
+                  }">
+                    ${escapeHtml(status)}
+                  </span>
+                </td>
+              </tr>
+            `;
+          }).join("")}
+        </tbody>
+      </table>
+    `;
+
+  } catch (error) {
+    box.innerHTML =
+      `<p class="danger">${escapeHtml(error.message)}</p>`;
+  }
+}
+
+$("attendanceDate")?.addEventListener(
+  "change",
+  loadAdminAttendance
+);
+
+// =========================
+// Utilities
+// =========================
+
+function escapeHtml(value) {
+  return String(value ?? "")
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+}
+
+// =========================
+// Service Worker
+// =========================
 
 if ("serviceWorker" in navigator) {
-
-  navigator.serviceWorker.register(
-    "/sw.js"
-  );
-
+  navigator.serviceWorker.register("/sw.js");
 }
+
+// =========================
+// Start
+// =========================
+
+boot();
