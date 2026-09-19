@@ -172,14 +172,17 @@ async function boot() {
 
     if (!me) {
       $("login").style.display = "grid";
+      $("app").classList.add("hidden");
       $("app").style.display = "none";
       return;
     }
 
     $("login").style.display = "none";
+
+    // إزالة hidden حتى يظهر التطبيق مع التصميم الأصلي
+    $("app").classList.remove("hidden");
     $("app").style.display = "block";
 
-    // مهم جداً: إظهار لوحة التحكم
     showPage("dashboard");
 
     if (!["admin", "manager"].includes(me.role)) {
@@ -341,9 +344,11 @@ $("loginForm")?.addEventListener("submit", async e => {
     });
 
     $("login").style.display = "none";
+
+    // إزالة hidden حتى يظهر التطبيق مع التصميم الأصلي
+    $("app").classList.remove("hidden");
     $("app").style.display = "block";
 
-    // مهم جداً: فتح Dashboard بعد تسجيل الدخول
     showPage("dashboard");
 
     document.querySelectorAll(".adminOnly").forEach(el => {
