@@ -107,26 +107,60 @@ function t() {
 // =========================
 
 async function api(url, options = {}) {
-  const res = await fetch(url, options);
+
+  let res;
+
+  try {
+
+    res = await fetch(url, options);
+
+  } catch (error) {
+
+    throw new Error(
+      currentLang === "ar"
+        ? "تعذر الاتصال بالسيرفر"
+        : "Could not connect to server"
+    );
+
+  }
+
+
+  const text = await res.text();
 
   let data = null;
 
-  try {
-    data = await res.json();
-  } catch {
-    data = null;
+  if (text) {
+
+    try {
+
+      data = JSON.parse(text);
+
+    } catch {
+
+      data = null;
+
+    }
+
   }
+
 
   if (!res.ok) {
+
     throw new Error(
       data?.error ||
-      (currentLang === "ar"
-        ? "حدث خطأ"
-        : "Something went wrong")
+      data?.message ||
+      (
+        currentLang === "ar"
+          ? `حدث خطأ في السيرفر (${res.status})`
+          : `Server error (${res.status})`
+      )
     );
+
   }
 
+
   return data;
+
 }
 
 
@@ -135,29 +169,41 @@ async function api(url, options = {}) {
 // =========================
 
 function showPage(page) {
-  document.querySelectorAll(".page").forEach(section => {
-    section.classList.add("hidden");
-  });
+
+  document
+    .querySelectorAll(".page")
+    .forEach(section => {
+      section.classList.add("hidden");
+    });
+
 
   const target = $(page);
+
 
   if (target) {
     target.classList.remove("hidden");
   }
 
+
   document
     .querySelectorAll(".side button[data-page]")
     .forEach(btn => {
+
       btn.classList.toggle(
         "active",
         btn.dataset.page === page
       );
+
     });
 
+
   if ($("pageTitle")) {
+
     $("pageTitle").textContent =
       t().pageTitles[page] || page;
+
   }
+
 }
 
 
@@ -166,37 +212,75 @@ function showPage(page) {
 // =========================
 
 async function boot() {
+
   try {
+
     me = await api("/api/me");
 
-    if (!me) {
+  } catch (error) {
+
+    console.log("No active session.");
+
+    me = null;
+
+  }
+
+
+  if (!me) {
+
+    if ($("login")) {
       $("login").style.display = "grid";
-      $("app").classList.add("hidden");
-      $("app").style.display = "none";
-      return;
     }
 
-    $("login").style.display = "none";
+    if ($("app")) {
+      $("app").classList.add("hidden");
+      $("app").style.display = "none";
+    }
 
-    $("app").classList.remove("hidden");
-    $("app").style.display = "block";
+    return;
+
+  }
+
+
+  try {
+
+    if ($("login")) {
+      $("login").style.display = "none";
+    }
+
+
+    if ($("app")) {
+      $("app").classList.remove("hidden");
+      $("app").style.display = "block";
+    }
+
 
     showPage("dashboard");
 
+
     if (!["admin", "manager"].includes(me.role)) {
-      document.querySelectorAll(".adminOnly").forEach(el => {
-        el.style.display = "none";
-      });
+
+      document
+        .querySelectorAll(".adminOnly")
+        .forEach(el => {
+          el.style.display = "none";
+        });
+
     }
 
+
     if ($("who")) {
+
       $("who").textContent =
         currentLang === "ar"
           ? `مرحباً ${me.name}`
           : `Welcome ${me.name}`;
+
     }
 
+
     updateLanguage();
+
 
     await loadDashboard();
     await loadReports();
@@ -204,17 +288,23 @@ async function boot() {
     await loadClients();
     await loadAttendance();
 
+
     if (["admin", "manager"].includes(me.role)) {
+
       await loadUsers();
 
       if (typeof loadAdminAttendance === "function") {
         await loadAdminAttendance();
       }
+
     }
 
   } catch (error) {
+
     console.error("BOOT ERROR:", error);
+
   }
+
 }
 
 
@@ -224,58 +314,80 @@ async function boot() {
 
 function updateLanguage() {
 
-  document.documentElement.lang = currentLang;
+  document.documentElement.lang =
+    currentLang;
 
   document.documentElement.dir =
-    currentLang === "ar" ? "rtl" : "ltr";
+    currentLang === "ar"
+      ? "rtl"
+      : "ltr";
 
 
   document
     .querySelectorAll(".side button[data-page]")
     .forEach(btn => {
 
-      const page = btn.dataset.page;
+      const page =
+        btn.dataset.page;
 
       if (t().side[page]) {
-        btn.textContent = t().side[page];
+
+        btn.textContent =
+          t().side[page];
+
       }
 
     });
 
 
-  const logout = $("logout");
+  const logout =
+    $("logout");
+
 
   if (logout) {
-    logout.textContent = t().side.logout;
+
+    logout.textContent =
+      t().side.logout;
+
   }
 
 
   const currentPage =
-    document.querySelector(".page:not(.hidden)")?.id ||
-    "dashboard";
+    document.querySelector(
+      ".page:not(.hidden)"
+    )?.id || "dashboard";
+
 
   if ($("pageTitle")) {
+
     $("pageTitle").textContent =
       t().pageTitles[currentPage] ||
       t().pageTitles.dashboard;
+
   }
 
 
-  const langBtn = $("langBtn");
+  const langBtn =
+    $("langBtn");
+
 
   if (langBtn) {
+
     langBtn.textContent =
       currentLang === "ar"
         ? "English"
         : "العربية";
+
   }
 
 
   if ($("who") && me) {
+
     $("who").textContent =
       currentLang === "ar"
         ? `مرحباً ${me.name}`
         : `Welcome ${me.name}`;
+
   }
 
 
@@ -288,18 +400,23 @@ function updateLanguage() {
   loadClients();
   loadAttendance();
 
+
   if (
     me &&
     ["admin", "manager"].includes(me.role)
   ) {
+
     loadUsers();
 
     if (typeof loadAdminAttendance === "function") {
       loadAdminAttendance();
     }
+
   }
 
+
   fixMobileNavigation();
+
 }
 
 
@@ -317,60 +434,131 @@ const staticTranslations = {
   "المهام": "Tasks",
   "العملاء": "Clients",
 
-  "الموظفين والحسابات": "Employees & Accounts",
-  "الموظفين": "Employees",
+  "الموظفين والحسابات":
+    "Employees & Accounts",
 
-  "الحضور والانصراف": "Attendance",
+  "الموظفين":
+    "Employees",
 
-  "إضافة ريبورت جديد": "New Report",
-  "ريبورت جديد": "New Report",
+  "الحضور والانصراف":
+    "Attendance",
 
-  "إضافة مهمة": "Add Task",
-  "إضافة عميل": "Add Client",
-  "إضافة موظف": "Add Employee",
+  "إضافة ريبورت جديد":
+    "New Report",
 
-  "الموظف": "Employee",
-  "العنوان": "Title",
-  "التاريخ": "Date",
-  "العميل": "Client",
-  "المشروع": "Project",
-  "النوع": "Type",
-  "الحالة": "Status",
-  "التفاصيل": "Details",
+  "ريبورت جديد":
+    "New Report",
 
-  "اسم العميل": "Client Name",
-  "جهة الاتصال": "Contact",
-  "الهاتف": "Phone",
-  "ملاحظات": "Notes",
+  "إضافة مهمة":
+    "Add Task",
 
-  "اسم المستخدم": "Username",
-  "كلمة المرور": "Password",
-  "الاسم": "Name",
-  "الصلاحية": "Role",
+  "إضافة عميل":
+    "Add Client",
 
-  "نشط": "Active",
-  "متوقف": "Inactive",
-  "إيقاف": "Disable",
-  "تفعيل": "Activate",
+  "إضافة موظف":
+    "Add Employee",
 
-  "المهمة": "Task",
-  "الاستحقاق": "Due Date",
-  "الأولوية": "Priority",
+  "الموظف":
+    "Employee",
 
-  "إجراء": "Action",
-  "تم": "Done",
+  "العنوان":
+    "Title",
 
-  "حفظ": "Save",
-  "إلغاء": "Cancel",
-  "إضافة": "Add",
-  "إغلاق": "Close",
+  "التاريخ":
+    "Date",
 
-  "لا توجد ريبورتات حتى الآن.": "No reports yet.",
-  "لا توجد مهام.": "No tasks.",
-  "لا يوجد عملاء.": "No clients.",
+  "العميل":
+    "Client",
 
-  "تسجيل الدخول": "Login",
-  "تسجيل خروج": "Logout"
+  "المشروع":
+    "Project",
+
+  "النوع":
+    "Type",
+
+  "الحالة":
+    "Status",
+
+  "التفاصيل":
+    "Details",
+
+  "اسم العميل":
+    "Client Name",
+
+  "جهة الاتصال":
+    "Contact",
+
+  "الهاتف":
+    "Phone",
+
+  "ملاحظات":
+    "Notes",
+
+  "اسم المستخدم":
+    "Username",
+
+  "كلمة المرور":
+    "Password",
+
+  "الاسم":
+    "Name",
+
+  "الصلاحية":
+    "Role",
+
+  "نشط":
+    "Active",
+
+  "متوقف":
+    "Inactive",
+
+  "إيقاف":
+    "Disable",
+
+  "تفعيل":
+    "Activate",
+
+  "المهمة":
+    "Task",
+
+  "الاستحقاق":
+    "Due Date",
+
+  "الأولوية":
+    "Priority",
+
+  "إجراء":
+    "Action",
+
+  "تم":
+    "Done",
+
+  "حفظ":
+    "Save",
+
+  "إلغاء":
+    "Cancel",
+
+  "إضافة":
+    "Add",
+
+  "إغلاق":
+    "Close",
+
+  "لا توجد ريبورتات حتى الآن.":
+    "No reports yet.",
+
+  "لا توجد مهام.":
+    "No tasks.",
+
+  "لا يوجد عملاء.":
+    "No clients.",
+
+  "تسجيل الدخول":
+    "Login",
+
+  "تسجيل خروج":
+    "Logout"
 };
 
 
@@ -388,10 +576,12 @@ function translateStaticUI() {
       "button, label, th, h1, h2, h3, h4, h5, p, span, .muted"
     );
 
+
   elements.forEach(el => {
 
     const original =
       el.textContent.trim();
+
 
     if (!original) return;
 
@@ -399,15 +589,19 @@ function translateStaticUI() {
     if (currentLang === "en") {
 
       if (staticTranslations[original]) {
+
         el.textContent =
           staticTranslations[original];
+
       }
 
     } else {
 
       if (reverseStaticTranslations[original]) {
+
         el.textContent =
           reverseStaticTranslations[original];
+
       }
 
     }
@@ -422,25 +616,32 @@ function translateStaticUI() {
       const placeholder =
         input.getAttribute("placeholder");
 
+
       if (!placeholder) return;
+
 
       if (currentLang === "en") {
 
         if (staticTranslations[placeholder]) {
+
           input.placeholder =
             staticTranslations[placeholder];
+
         }
 
       } else {
 
         if (reverseStaticTranslations[placeholder]) {
+
           input.placeholder =
             reverseStaticTranslations[placeholder];
+
         }
 
       }
 
     });
+
 }
 
 
@@ -453,6 +654,7 @@ function fixMobileNavigation() {
   let style =
     $("czMobileNavigationFix");
 
+
   if (!style) {
 
     style =
@@ -462,6 +664,7 @@ function fixMobileNavigation() {
       "czMobileNavigationFix";
 
     document.head.appendChild(style);
+
   }
 
 
@@ -501,6 +704,7 @@ function fixMobileNavigation() {
     }
 
   `;
+
 }
 
 
@@ -508,150 +712,72 @@ function fixMobileNavigation() {
 // Navigation
 // =========================
 
-document.addEventListener("click", async e => {
+document.addEventListener(
+  "click",
+  async e => {
 
-  const btn =
-    e.target.closest("[data-page]");
+    const btn =
+      e.target.closest("[data-page]");
 
-  if (!btn) return;
 
-  const page =
-    btn.dataset.page;
+    if (!btn) return;
 
-  showPage(page);
 
-  if (page === "attendance" && me) {
+    const page =
+      btn.dataset.page;
 
-    await loadAttendance();
+
+    showPage(page);
+
 
     if (
-      ["admin", "manager"].includes(me.role) &&
-      typeof loadAdminAttendance === "function"
+      page === "attendance" &&
+      me
     ) {
-      await loadAdminAttendance();
+
+      await loadAttendance();
+
+
+      if (
+        ["admin", "manager"].includes(me.role) &&
+        typeof loadAdminAttendance === "function"
+      ) {
+
+        await loadAdminAttendance();
+
+      }
+
     }
 
   }
-
-});
+);
 
 
 // =========================
 // Language button
 // =========================
 
-document.addEventListener("click", async e => {
+document.addEventListener(
+  "click",
+  async e => {
 
-  const btn = e.target.closest("#langBtn");
-
-  if (!btn) return;
-
-  currentLang =
-    currentLang === "ar"
-      ? "en"
-      : "ar";
-
-  localStorage.setItem(
-    "cz_lang",
-    currentLang
-  );
-
-  updateLanguage();
-
-  await loadDashboard();
-  await loadReports();
-  await loadTasks();
-  await loadClients();
-  await loadAttendance();
-
-  if (
-    ["admin", "manager"].includes(me?.role)
-  ) {
-    await loadUsers();
-
-    if (typeof loadAdminAttendance === "function") {
-      await loadAdminAttendance();
-    }
-  }
-
-});
+    const btn =
+      e.target.closest("#langBtn");
 
 
-// =========================
-// Login
-// =========================
-
-document.addEventListener("submit", async e => {
-
-  if (e.target.id !== "loginForm") return;
-
-  e.preventDefault();
-
-  const loginErr = $("loginErr");
-
-  if (loginErr) {
-    loginErr.classList.add("hidden");
-    loginErr.textContent = "";
-  }
-
-  try {
-
-    const username =
-      $("username")?.value.trim();
-
-    const password =
-      $("password")?.value;
-
-    if (!username || !password) {
-      throw new Error(
-        currentLang === "ar"
-          ? "اكتب اسم المستخدم وكلمة المرور"
-          : "Enter username and password"
-      );
-    }
+    if (!btn) return;
 
 
-    me = await api("/api/login", {
-      method: "POST",
-
-      headers: {
-        "Content-Type": "application/json"
-      },
-
-      body: JSON.stringify({
-        username,
-        password
-      })
-    });
+    currentLang =
+      currentLang === "ar"
+        ? "en"
+        : "ar";
 
 
-    $("login").style.display = "none";
-
-    $("app").classList.remove("hidden");
-    $("app").style.display = "block";
-
-    showPage("dashboard");
-
-
-    document
-      .querySelectorAll(".adminOnly")
-      .forEach(el => {
-
-        el.style.display =
-          ["admin", "manager"]
-            .includes(me.role)
-            ? ""
-            : "none";
-
-      });
-
-
-    if ($("who")) {
-      $("who").textContent =
-        currentLang === "ar"
-          ? `مرحباً ${me.name}`
-          : `Welcome ${me.name}`;
-    }
+    localStorage.setItem(
+      "cz_lang",
+      currentLang
+    );
 
 
     updateLanguage();
@@ -665,38 +791,202 @@ document.addEventListener("submit", async e => {
 
 
     if (
-      ["admin", "manager"].includes(me.role)
+      ["admin", "manager"].includes(me?.role)
     ) {
 
       await loadUsers();
 
-      if (typeof loadAdminAttendance === "function") {
+
+      if (
+        typeof loadAdminAttendance === "function"
+      ) {
+
         await loadAdminAttendance();
+
       }
 
     }
 
-  } catch (error) {
+  }
+);
 
-    console.error("LOGIN ERROR:", error);
+
+// =========================
+// Login
+// =========================
+
+document.addEventListener(
+  "submit",
+  async e => {
+
+    if (
+      e.target.id !== "loginForm"
+    ) {
+      return;
+    }
+
+
+    e.preventDefault();
+
+
+    const loginErr =
+      $("loginErr");
+
 
     if (loginErr) {
 
-      loginErr.textContent =
-        error.message ||
-        (
+      loginErr.classList.add("hidden");
+      loginErr.textContent = "";
+
+    }
+
+
+    try {
+
+      const username =
+        $("username")?.value.trim();
+
+
+      const password =
+        $("password")?.value;
+
+
+      if (!username || !password) {
+
+        throw new Error(
           currentLang === "ar"
-            ? "فشل تسجيل الدخول"
-            : "Login failed"
+            ? "اكتب اسم المستخدم وكلمة المرور"
+            : "Enter username and password"
         );
 
-      loginErr.classList.remove("hidden");
+      }
+
+
+      me = await api(
+        "/api/login",
+        {
+          method: "POST",
+
+          headers: {
+            "Content-Type":
+              "application/json"
+          },
+
+          body:
+            JSON.stringify({
+              username,
+              password
+            })
+        }
+      );
+
+
+      if (!me) {
+
+        throw new Error(
+          currentLang === "ar"
+            ? "السيرفر لم يرجع بيانات المستخدم"
+            : "Server did not return user data"
+        );
+
+      }
+
+
+      if ($("login")) {
+        $("login").style.display = "none";
+      }
+
+
+      if ($("app")) {
+
+        $("app").classList.remove("hidden");
+        $("app").style.display = "block";
+
+      }
+
+
+      showPage("dashboard");
+
+
+      document
+        .querySelectorAll(".adminOnly")
+        .forEach(el => {
+
+          el.style.display =
+            ["admin", "manager"]
+              .includes(me.role)
+              ? ""
+              : "none";
+
+        });
+
+
+      if ($("who")) {
+
+        $("who").textContent =
+          currentLang === "ar"
+            ? `مرحباً ${me.name}`
+            : `Welcome ${me.name}`;
+
+      }
+
+
+      updateLanguage();
+
+
+      await loadDashboard();
+      await loadReports();
+      await loadTasks();
+      await loadClients();
+      await loadAttendance();
+
+
+      if (
+        ["admin", "manager"].includes(me.role)
+      ) {
+
+        await loadUsers();
+
+
+        if (
+          typeof loadAdminAttendance === "function"
+        ) {
+
+          await loadAdminAttendance();
+
+        }
+
+      }
+
+    } catch (error) {
+
+      console.error(
+        "LOGIN ERROR:",
+        error
+      );
+
+
+      if (loginErr) {
+
+        loginErr.textContent =
+          error.message ||
+          (
+            currentLang === "ar"
+              ? "فشل تسجيل الدخول"
+              : "Login failed"
+          );
+
+
+        loginErr.classList.remove(
+          "hidden"
+        );
+
+      }
 
     }
 
   }
-
-});
+);
 
 
 // =========================
@@ -709,15 +999,19 @@ $("logout")?.addEventListener(
 
     try {
 
-      await api("/api/logout", {
-        method: "POST"
-      });
+      await api(
+        "/api/logout",
+        {
+          method: "POST"
+        }
+      );
 
     } catch (error) {
 
       console.error(error);
 
     }
+
 
     location.reload();
 
@@ -734,7 +1028,9 @@ async function loadDashboard() {
   try {
 
     const d =
-      await api("/api/dashboard");
+      await api(
+        "/api/dashboard"
+      );
 
 
     if ($("sReports")) {
@@ -778,13 +1074,16 @@ async function loadReports() {
   const box =
     $("reportsTable");
 
+
   if (!box) return;
 
 
   try {
 
     const rows =
-      await api("/api/reports");
+      await api(
+        "/api/reports"
+      );
 
 
     if (!rows.length) {
@@ -797,6 +1096,7 @@ async function loadReports() {
         }</p>`;
 
       return;
+
     }
 
 
@@ -876,6 +1176,7 @@ async function loadReports() {
 
     box.innerHTML =
       `<p class="danger">${escapeHtml(error.message)}</p>`;
+
   }
 
 }
@@ -883,7 +1184,8 @@ async function loadReports() {
 
 function showReportForm() {
 
-  $("reportForm")?.classList.remove("hidden");
+  $("reportForm")
+    ?.classList.remove("hidden");
 
 
   const dateInput =
@@ -920,6 +1222,7 @@ $("reportAdd")?.addEventListener(
   async e => {
 
     e.preventDefault();
+
 
     try {
 
@@ -971,13 +1274,16 @@ async function loadUsers() {
   const box =
     $("usersTable");
 
+
   if (!box) return;
 
 
   try {
 
     const rows =
-      await api("/api/users");
+      await api(
+        "/api/users"
+      );
 
 
     box.innerHTML = `
@@ -1125,6 +1431,7 @@ async function toggleUser(id) {
       }
     );
 
+
     await loadUsers();
 
   } catch (error) {
@@ -1204,13 +1511,16 @@ async function loadTasks() {
   const box =
     $("tasksTable");
 
+
   if (!box) return;
 
 
   try {
 
     const rows =
-      await api("/api/tasks");
+      await api(
+        "/api/tasks"
+      );
 
 
     if (!rows.length) {
@@ -1325,6 +1635,7 @@ async function doneTask(id) {
       }
     );
 
+
     await loadTasks();
     await loadDashboard();
 
@@ -1405,13 +1716,16 @@ async function loadClients() {
   const box =
     $("clientsTable");
 
+
   if (!box) return;
 
 
   try {
 
     const rows =
-      await api("/api/clients");
+      await api(
+        "/api/clients"
+      );
 
 
     if (!rows.length) {
@@ -1553,45 +1867,60 @@ function renderAttendanceLabels() {
   const title =
     $("attendanceTitle");
 
+
   if (title) {
+
     title.textContent =
       t().attendance.title;
+
   }
 
 
   const todayTitle =
     $("attendanceTodayTitle");
 
+
   if (todayTitle) {
+
     todayTitle.textContent =
       t().attendance.today;
+
   }
 
 
   const adminTitle =
     $("attendanceAdminTitle");
 
+
   if (adminTitle) {
+
     adminTitle.textContent =
       t().attendance.adminTitle;
+
   }
 
 
   const exportBtn =
     $("attendanceExport");
 
+
   if (exportBtn) {
+
     exportBtn.textContent =
       t().attendance.export;
+
   }
 
 
   const filterLabel =
     $("attendanceFilterLabel");
 
+
   if (filterLabel) {
+
     filterLabel.textContent =
       t().attendance.filter;
+
   }
 
 }
@@ -1669,6 +1998,7 @@ async function loadAttendance() {
   const box =
     $("attendanceToday");
 
+
   if (!box) return;
 
 
@@ -1729,6 +2059,7 @@ async function loadAttendance() {
 
     const checkIn =
       formatTime(record.check_in);
+
 
     const checkOut =
       formatTime(record.check_out);
@@ -1942,7 +2273,9 @@ async function checkOut() {
       ["admin", "manager"].includes(me?.role) &&
       typeof loadAdminAttendance === "function"
     ) {
+
       await loadAdminAttendance();
+
     }
 
   } catch (error) {
@@ -1965,12 +2298,17 @@ async function exportAttendance() {
     const date =
       $("attendanceDate")?.value || "";
 
+
     const url =
       date
         ? `/api/attendance/export?date=${encodeURIComponent(date)}`
         : "/api/attendance/export";
 
-    window.open(url, "_blank");
+
+    window.open(
+      url,
+      "_blank"
+    );
 
   } catch (error) {
 
@@ -1981,9 +2319,14 @@ async function exportAttendance() {
 }
 
 
-window.checkIn = checkIn;
-window.checkOut = checkOut;
-window.exportAttendance = exportAttendance;
+window.checkIn =
+  checkIn;
+
+window.checkOut =
+  checkOut;
+
+window.exportAttendance =
+  exportAttendance;
 
 
 // =========================
@@ -1993,11 +2336,26 @@ window.exportAttendance = exportAttendance;
 function escapeHtml(value) {
 
   return String(value ?? "")
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#039;");
+    .replace(
+      /&/g,
+      "&amp;"
+    )
+    .replace(
+      /</g,
+      "&lt;"
+    )
+    .replace(
+      />/g,
+      "&gt;"
+    )
+    .replace(
+      /"/g,
+      "&quot;"
+    )
+    .replace(
+      /'/g,
+      "&#039;"
+    );
 
 }
 
